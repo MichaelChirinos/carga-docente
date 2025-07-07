@@ -1,0 +1,81 @@
+<div class="p-6">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Listado de Docentes</h2>
+
+  @if (loading) {
+    <div class="text-center py-8">
+      <p>Cargando docentes...</p>
+    </div>
+  }
+
+  @if (error) {
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6">
+      {{error}}
+    </div>
+  }
+
+   <div>
+      <a 
+        routerLink="/director/registrar-docente" 
+        class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+        </svg>
+        Nuevo Docente
+      </a>
+    </div>
+
+  @if (!loading && !error) {
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="py-3 px-4 text-left">Código</th>
+            <th class="py-3 px-4 text-left">Docente</th>
+            <th class="py-3 px-4 text-left">Dedicación</th>
+            <th class="py-3 px-4 text-left">Categoría</th>
+            <th class="py-3 px-4 text-left">Horas Máx.</th>
+            <th class="py-3 px-4 text-left">Estado</th>
+            <th class="py-3 px-4 text-left">Acciones</th> <!-- Nueva columna -->
+          </tr>
+        </thead>
+        <tbody>
+          @for (docente of docentes; track docente.idDocente) {
+            <tr class="border-b hover:bg-gray-50">
+              <td class="py-3 px-4">{{docente.usuario.codigo}}</td>
+              <td class="py-3 px-4">
+                <div class="font-medium">{{docente.usuario.nombre}} {{docente.usuario.apellido}}</div>
+                <div class="text-sm text-gray-500">{{docente.usuario.email}}</div>
+              </td>
+              <td class="py-3 px-4">{{docente.dedicacion.nombre}}</td>
+              <td class="py-3 px-4">{{docente.categoria.nombre}}</td>
+              <td class="py-3 px-4">{{docente.horasMaxLectivas}}h</td>
+              <td class="py-3 px-4">
+                <span 
+                  class="px-2 py-1 rounded-full text-xs 
+                  {{docente.enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}}"
+                >
+                  {{docente.enabled ? 'Activo' : 'Inactivo'}}
+                </span>
+              </td>
+              <td class="py-3 px-4">
+                <div class="flex space-x-2">
+                  <!-- Botón Editar -->
+                  <button
+                    (click)="editarDocente(docente.idDocente)"
+                    class="text-blue-600 hover:text-blue-800 transition-colors"
+                    title="Editar docente"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Usuario } from './usuario.model';
+import { Usuario } from "./usuario.model";
 
 export interface AuthResponse {
   status: number;
@@ -6,5 +6,6 @@ export interface AuthResponse {
   data: {
     token: string;
     usuario: Usuario;
+    roles?: any; // Opcional si no lo usas
   };
 }

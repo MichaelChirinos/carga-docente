@@ -1,0 +1,86 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <!-- Mensaje de estado -->
+  <div *ngIf="message" 
+       class="fixed top-4 right-4 px-4 py-3 rounded shadow-lg z-50"
+       [class.bg-red-100]="isError"
+       [class.bg-green-100]="!isError"
+       [class.text-red-700]="isError"
+       [class.text-green-700]="!isError">
+    {{ message }}
+  </div>
+
+  <div class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl">
+    <div class="p-8">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Registrar Ciclo Académico</h2>
+      
+      <form #cicloForm="ngForm" (ngSubmit)="submitForm(cicloForm)" class="space-y-6">
+        <!-- Año -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Año *</label>
+          <input
+            type="number"
+            [(ngModel)]="cicloData.anio"
+            name="anio"
+            required
+            min="2000"
+            class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Periodo -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Periodo *</label>
+          <select
+            [(ngModel)]="cicloData.periodo"
+            name="periodo"
+            required
+            class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+          >
+            <option *ngFor="let p of periodos" [value]="p.value">{{ p.label }}</option>
+          </select>
+        </div>
+
+        <!-- Fechas -->
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio *</label>
+    <input
+      type="date"
+      [(ngModel)]="fechaInicioInput"
+      name="fechaInicio"
+      required
+      class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+    >
+  </div>
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin *</label>
+    <input
+      type="date"
+      [(ngModel)]="fechaFinInput"
+      name="fechaFin"
+      required
+      class="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+    >
+  </div>
+</div>
+        <!-- Botones -->
+        <div class="flex justify-end gap-4 pt-4">
+          <button
+            type="button"
+            (click)="router.navigate(['/director'])"
+            class="px-4 py-2 border rounded hover:bg-gray-100 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="cicloForm.invalid || isLoading"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400 transition"
+          >
+            {{ isLoading ? 'Registrando...' : 'Registrar Ciclo' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
