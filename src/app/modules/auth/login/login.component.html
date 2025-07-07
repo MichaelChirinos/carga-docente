@@ -1,8 +1,93 @@
-<div class="login-container">
-  <h2>Iniciar Sesión</h2>
-  <form (ngSubmit)="onLogin()">
-    <input type="text" placeholder="Usuario" [(ngModel)]="username" name="username" required />
-    <input type="password" placeholder="Contraseña" [(ngModel)]="password" name="password" required />
-    <button type="submit">Entrar</button>
-  </form>
+<div class="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- Header académico -->
+    <div class="bg-[#1e3a8a] py-6 px-8 text-center relative">
+
+      <img src="assets/images/auth/escudo.png" alt="Logo" class="h-16 mx-auto mb-3">
+      <h1 class="text-2xl font-bold text-white">Bienvenido a la Plataforma</h1>
+      <p class="text-blue-100 mt-1">Sistema de Gestión Académica</p>
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="onLogin()" class="p-8 space-y-6">
+      <!-- Campo Correo -->
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+          </span>
+          <input
+            type="email"
+            id="email"
+            [(ngModel)]="email"
+            name="email"
+            required
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="tu.correo@unmsm.edu.pe"
+          >
+        </div>
+      </div>
+
+      <!-- Campo Contraseña -->
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+            </svg>
+          </span>
+          <input
+            type="password"
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            required
+            class="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="••••••••"
+          >
+        </div>
+      </div>
+
+      <!-- Botón de Acceso -->
+      <button
+        type="submit"
+        class="w-full bg-[#1e3a8a] hover:bg-blue-800 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center"
+      >
+        Iniciar Sesión
+      </button>
+    </form>
+
+    <!-- Mensaje de acceso denegado -->
+    @if (accessDenied) {
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-4">
+        <div class="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mt-3">Acceso denegado</h3>
+          <p class="text-gray-500 mt-2">Credenciales incorrectas o no tienes permisos para acceder.</p>
+          <div class="mt-4">
+            <button
+              (click)="accessDenied = false"
+              class="px-4 py-2 bg-[#1e3a8a] text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- Footer institucional -->
+    <div class="bg-gray-100 px-8 py-4 text-center border-t border-gray-200">
+      <p class="text-xs text-gray-600">Universidad Nacional Mayor de San Marcos © {{currentYear}}</p>
+    </div>
+  </div>
 </div>

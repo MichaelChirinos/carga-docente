@@ -1,0 +1,21 @@
+<div class="max-w-4xl mx-auto">
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="p-6">
+      <h1 class="text-2xl font-bold text-gray-800 mb-2">¡Hola, {{ authService.getCurrentUser()?.nombre }}! 👋</h1>
+      <p class="text-gray-600 mb-6">Bienvenido a tu panel de control docente</p>
+      
+      <div class="bg-gradient-to-r from-blue-50 to-blue-100 p-5 rounded-lg border border-blue-200">
+        <h3 class="font-bold text-blue-800 mb-2">📌 Acciones rápidas</h3>
+        <p class="text-blue-700">
+          Recuerda registrar tu disponibilidad horaria y preferencias de asignaturas.
+        </p>
+      </div>
+    </div>
+    
+    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+      <p class="text-sm text-gray-500">
+        Sistema Académico v2.0 · {{ currentYear }}
+      </p>
+    </div>
+  </div>
+</div>

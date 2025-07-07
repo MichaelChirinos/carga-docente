@@ -1,0 +1,38 @@
+<!-- director/components/navbar/navbar.component.html -->
+<header class="sticky top-0 z-10 bg-white shadow-sm h-16 flex items-center justify-between px-6">
+  <div></div> <!-- Espacio para balance -->
+  
+  <div class="flex items-center space-x-4">
+    <span class="hidden sm:inline text-sm font-medium text-gray-700">
+      {{ authService.getCurrentUser()?.nombre || 'Director' }}
+    </span>
+    
+    <div class="relative">
+      <button
+        (click)="isMenuOpen = !isMenuOpen"
+        class="flex items-center focus:outline-none"
+      >
+        <div class="h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-medium">
+          {{ authService.getCurrentUser()?.nombre?.charAt(0) || 'D' }}
+        </div>
+      </button>
+
+      @if (isMenuOpen) {
+      <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
+        <a
+          (click)="router.navigate(['/director/perfil']); isMenuOpen = false"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 cursor-pointer"
+        >
+          Mi Perfil
+        </a>
+        <a
+          (click)="logout()"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 cursor-pointer"
+        >
+          Cerrar Sesión
+        </a>
+      </div>
+      }
+    </div>
+  </div>
+</header>

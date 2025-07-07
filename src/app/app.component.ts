@@ -1,5 +1,6 @@
 import { Component, NgModule } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -8,7 +9,14 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
-  title = 'carga-docente';
-}
 
+export class AppComponent {
+constructor(private router: Router) {
+  this.router.events.subscribe(event => {
+    if (event instanceof NavigationEnd) {
+      console.log('RUTA ACTUAL:', event.url);
+    }
+  });
+}
+  
+}

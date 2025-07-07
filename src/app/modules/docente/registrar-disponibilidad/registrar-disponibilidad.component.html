@@ -1,0 +1,111 @@
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <!-- Mensaje de estado -->
+  <div *ngIf="message" 
+       class="fixed top-4 right-4 px-4 py-3 rounded shadow-lg z-50"
+       [class.bg-red-100]="isError"
+       [class.bg-green-100]="!isError"
+       [class.text-red-700]="isError"
+       [class.text-green-700]="!isError">
+    {{ message }}
+  </div>
+
+  <h2 class="text-2xl font-bold text-blue-800 mb-6">
+    {{ isEditing ? 'Editar' : 'Registrar' }} Disponibilidad
+  </h2>
+
+  <form [formGroup]="disponibilidadForm" (ngSubmit)="onSubmit()" class="space-y-4">
+    <!-- Carga Electiva -->
+    <div>
+      <label class="block text-gray-700 mb-1">Carga Electiva *</label>
+      <select
+        formControlName="idCargaElectiva"
+        class="w-full px-3 py-2 border rounded"
+        [disabled]="isEditing"
+      >
+        <option [ngValue]="null">Seleccionar carga electiva</option>
+        <option *ngFor="let c of cargasElectivas" [value]="c.idCargaElectiva">
+          {{ c.cicloAcademico?.nombre || c.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Lista de disponibilidades -->
+    <div formArrayName="disponibilidades">
+      <div *ngFor="let disp of disponibilidadesArray.controls; let i = index" 
+           [formGroupName]="i" class="mb-4 p-4 border rounded-lg bg-gray-50">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-medium text-gray-700">Disponibilidad {{i + 1}}</h3>
+          <button 
+            *ngIf="!isEditing && disponibilidadesArray.length > 1"
+            type="button" 
+            (click)="eliminarDisponibilidad(i)"
+            class="text-red-500 hover:text-red-700"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Día -->
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Día *</label>
+            <select
+              formControlName="diaSemana"
+              class="w-full px-3 py-2 border rounded"
+            >
+              <option *ngFor="let d of diasSemana" [value]="d">{{ d | titlecase }}</option>
+            </select>
+          </div>
+
+          <!-- Horario -->
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Hora Inicio *</label>
+            <input
+              type="time"
+              formControlName="horaInicio"
+              class="w-full px-3 py-2 border rounded"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-1">Hora Fin *</label>
+            <input
+              type="time"
+              formControlName="horaFin"
+              class="w-full px-3 py-2 border rounded"
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="flex justify-between items-center pt-4">
+      <button
+        *ngIf="!isEditing"
+        type="button"
+        (click)="agregarDisponibilidad()"
+        class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+      >
+        + Agregar otra disponibilidad
+      </button>
+
+      <div class="flex space-x-3">
+        <button
+          type="button"
+          (click)="router.navigate(['/docente/gestionar-disponibilidad'])"
+          class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="disponibilidadForm.invalid || isLoading"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-300 transition"
+        >
+          {{ isLoading ? 'Procesando...' : (isEditing ? 'Actualizar' : 'Registrar') }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

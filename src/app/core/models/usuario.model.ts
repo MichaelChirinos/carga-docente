@@ -1,9 +1,9 @@
 export interface Usuario {
   idUsuario: number;
-  idRol: string;
+  idRol: number; 
   codigo: string;
-  nombres: string;
-  apellidos: string;
+  nombre: string;  
+  apellido: string; 
   email: string;
-  user_name: string;
+  enabled: boolean; 
 }
