@@ -1,10 +1,10 @@
+// director.model.ts
 export interface DirectorRequest {
   email: string;
   password: string;
   nombre: string;
   apellido: string;
-  cargo: string;
-  idFacultad: number; // Nuevo campo requerido
+  idEscuela: number;  // Cambiado de 'cargo' a 'idEscuela'
 }
 
 export interface UsuarioResponse {
@@ -17,20 +17,20 @@ export interface UsuarioResponse {
   apellido: string;
 }
 
-export interface FacultadDirectorResponse {
-  idFacultad: number;
+export interface EscuelaResponse {
+  idEscuela: number;
   nombre: string;
+}
+
+export interface DirectorData {
+  idDirector: number;
+  usuario: UsuarioResponse;
+  escuela: EscuelaResponse;
+  enabled: boolean;
 }
 
 export interface DirectorResponse {
   status: number;
   message: string;
-  data: {
-    email: string;
-    idDirector: number;
-    usuario: UsuarioResponse;
-    cargo: string;
-    enabled: boolean;
-    facultad: FacultadDirectorResponse;
-  };
+  data: DirectorData;
 }

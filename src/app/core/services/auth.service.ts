@@ -43,7 +43,9 @@ login(email: string, password: string): Observable<any> {
 public getRolePath(idRol: number): string {
   return idRol === 1 ? 'admin' :
          idRol === 2 ? 'director' :
-         idRol === 3 ? 'docente' : 'login';
+         idRol === 3 ? 'docente' :
+         idRol === 4 ? 'jefe-departamento' :
+         idRol === 5 ? 'logistica' : 'login';
 }
 
   private setToken(token: string): void {

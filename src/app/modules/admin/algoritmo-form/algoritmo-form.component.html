@@ -1,0 +1,344 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header con título -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Configuración de Algoritmo</h1>
+      <p class="mt-2 text-sm text-gray-600">Configura los parámetros del algoritmo genético y PSO</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <form [formGroup]="algoritmoForm" (ngSubmit)="onSubmit()" class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <!-- Columna 1 - Parámetros GA -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Algoritmo Genético</h3>
+            
+            <!-- Población -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Población *
+              </label>
+              <input 
+                type="number" 
+                formControlName="poblacion" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 100"
+                min="1"
+              >
+              @if (hasError('poblacion', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('poblacion', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 1</div>
+              }
+            </div>
+
+            <!-- Generaciones GA -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Generaciones GA *
+              </label>
+              <input 
+                type="number" 
+                formControlName="generacionGa" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 100"
+                min="1"
+              >
+              @if (hasError('generacionGa', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('generacionGa', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 1</div>
+              }
+            </div>
+
+            <!-- Probabilidad Cruzamientos -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Prob. Cruzamiento *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="probCruzamientos" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0.0 - 1.0"
+                min="0"
+                max="1"
+              >
+              @if (hasError('probCruzamientos', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('probCruzamientos', 'min') || hasError('probCruzamientos', 'max')) {
+                <div class="text-red-600 text-xs mt-1">El valor debe estar entre 0 y 1</div>
+              }
+            </div>
+
+            <!-- Probabilidad Mutación -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Prob. Mutación *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="probMutacion" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0.0 - 1.0"
+                min="0"
+                max="1"
+              >
+              @if (hasError('probMutacion', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('probMutacion', 'min') || hasError('probMutacion', 'max')) {
+                <div class="text-red-600 text-xs mt-1">El valor debe estar entre 0 y 1</div>
+              }
+            </div>
+
+            <!-- Elitismo -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Elitismo *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="elitismo" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="0.0 - 1.0"
+                min="0"
+                max="1"
+              >
+              @if (hasError('elitismo', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('elitismo', 'min') || hasError('elitismo', 'max')) {
+                <div class="text-red-600 text-xs mt-1">El valor debe estar entre 0 y 1</div>
+              }
+            </div>
+          </div>
+
+          <!-- Columna 2 - Parámetros PSO -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">PSO</h3>
+            
+            <!-- Enjambre PSO -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Tamaño Enjambre *
+              </label>
+              <input 
+                type="number" 
+                formControlName="enjambrePso" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 30"
+                min="1"
+              >
+              @if (hasError('enjambrePso', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('enjambrePso', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 1</div>
+              }
+            </div>
+
+            <!-- Iteraciones PSO -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Iteraciones PSO *
+              </label>
+              <input 
+                type="number" 
+                formControlName="iteracionesPso" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 80"
+                min="1"
+              >
+              @if (hasError('iteracionesPso', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('iteracionesPso', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 1</div>
+              }
+            </div>
+
+            <!-- Inercia Inicial -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Inercia Inicial *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="inerciaInicial" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 0.9"
+                min="0"
+              >
+              @if (hasError('inerciaInicial', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('inerciaInicial', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 0</div>
+              }
+            </div>
+
+            <!-- Inercia Final -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Inercia Final *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="inerciaFinal" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 0.4"
+                min="0"
+              >
+              @if (hasError('inerciaFinal', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('inerciaFinal', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 0</div>
+              }
+            </div>
+          </div>
+
+          <!-- Columna 3 - Parámetros Adicionales -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Parámetros Adicionales</h3>
+            
+            <!-- C1 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                C1 (Coef. Cognitivo) *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="cUno" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 2.0"
+                min="0"
+              >
+              @if (hasError('cUno', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('cUno', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 0</div>
+              }
+            </div>
+
+            <!-- C2 -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                C2 (Coef. Social) *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="cDos" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 2.0"
+                min="0"
+              >
+              @if (hasError('cDos', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('cDos', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 0</div>
+              }
+            </div>
+
+            <!-- Velocidad Máxima -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Velocidad Máxima *
+              </label>
+              <input 
+                type="number" 
+                step="0.01" 
+                formControlName="velocidadMaxima" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 1.0"
+                min="0"
+              >
+              @if (hasError('velocidadMaxima', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('velocidadMaxima', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 0</div>
+              }
+            </div>
+
+            <!-- Ciclos Híbridos -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Ciclos Híbridos *
+              </label>
+              <input 
+                type="number" 
+                formControlName="cicloHibridos" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Ej: 3"
+                min="1"
+              >
+              @if (hasError('cicloHibridos', 'required')) {
+                <div class="text-red-600 text-xs mt-1">Este campo es requerido</div>
+              }
+              @if (hasError('cicloHibridos', 'min')) {
+                <div class="text-red-600 text-xs mt-1">El valor mínimo es 1</div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="mt-8 flex justify-end space-x-3">
+          <button 
+            type="button" 
+            (click)="onClear()"
+            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Limpiar
+          </button>
+          <button 
+            type="submit" 
+            [disabled]="isLoading"
+            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            @if (isLoading) {
+              <span class="inline-flex items-center">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Guardando...
+              </span>
+            } @else {
+              Guardar Configuración
+            }
+          </button>
+        </div>
+
+        <!-- Mensajes de estado -->
+        @if (mensaje) {
+          <div class="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-md">
+            {{ mensaje }}
+          </div>
+        }
+
+        @if (error) {
+          <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            {{ error }}
+          </div>
+        }
+      </form>
+    </div>
+  </div>
+</div>

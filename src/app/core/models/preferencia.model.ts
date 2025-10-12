@@ -1,42 +1,30 @@
-import { AsignaturaResponse } from './asignatura'; // Importamos la interfaz existente
 export interface PreferenciaBaseRequest {
   idDocente: number;
   idAsignatura: number;
-  idCargaElectiva: number;
+  idCicloAcademico: number; // CAMBIADO: idCargaElectiva → idCicloAcademico
 }
+
 export interface PreferenciaRequest extends PreferenciaBaseRequest {
   idDocente: number;
   idAsignatura: number;
-  idCargaElectiva: number;
+  idCicloAcademico: number; // CAMBIADO
 }
+
 export interface PreferenciaMultipleRequest {
   preferencias: PreferenciaBaseRequest[];
 }
+
 export interface PreferenciaMultipleResponse {
   status: number;
   message: string;
   data: PreferenciaResponse[];
-}
-export interface CargaElectiva {
-  idCargaElectiva: number;
-  nombre: string;
-  cicloAcademico: {
-    idCicloAcademico: number;
-    nombre: string;
-  };
-  enabled: boolean;
-}
-
-export interface CargaElectivaListResponse {
-  status: number;
-  message: string;
-  data: CargaElectiva[];
 }
 
 export interface PreferenciaResponse {
   idPreferencia: number;
   docente: {
     idDocente: number;
+    codigo: string;
     usuario: {
       nombre: string;
       apellido: string;
@@ -45,19 +33,54 @@ export interface PreferenciaResponse {
   asignatura: {
     idAsignatura: number;
     nombre: string;
+    codigo?: string; // Agregar esta propiedad opcional
   };
-  cargaElectiva: {
-    idCargaElectiva: number;
+  cicloAcademico: {
+    idCicloAcademico: number;
     nombre: string;
+    enabled?: boolean;
   };
   enabled: boolean;
 }
 export interface PreferenciaListResponse {
   status: number;
   message: string;
-  data: Preferencia[];
+  data: PreferenciaResponse[];
 }
-export interface Preferencia {
+
+export interface CicloAcademicoListResponse {
+  status: number;
+  message: string;
+  data: {
+    idCicloAcademico: number;
+    nombre: string;
+    enabled: boolean;
+  }[];
+}
+
+export interface AsignaturaListResponse {
+  status: number;
+  message: string;
+  data: {
+    idAsignatura: number;
+    codigo: string;
+    nombre: string;
+    enabled: boolean;
+  }[];
+}
+// Agrega esto a preferencia.model.ts
+
+export interface PreferenciaDocenteResponse {
+  idDocente: number;
+  usuario: {
+    nombre: string;
+    apellido: string;
+  };
+  preferencias: PreferenciaSimple[];
+  enabled: boolean;
+}
+
+export interface PreferenciaSimple {
   idPreferencia: number;
   asignatura: {
     idAsignatura: number;
@@ -65,33 +88,9 @@ export interface Preferencia {
   };
   enabled: boolean;
 }
-export interface SinglePreferenciaResponse {
+
+export interface PreferenciasPorDocenteResponse {
   status: number;
   message: string;
-  data: {
-    docente: {
-      idDocente: number;
-      usuario: {
-        nombre: string;
-        apellido: string;
-      };
-    };
-    asignatura: {
-      idAsignatura: number;
-      nombre: string;
-    };
-    cargaElectiva: {
-      idCargaElectiva: number;
-      nombre: string;
-    };
-    enabled: boolean;
-  };
-}
-export interface AsignaturaListResponse {
-  data: {
-    enabled: undefined;
-    idAsignatura: number;
-    nombre: string;
-    codigo: string;
-  }[];
+  data: PreferenciaDocenteResponse[];
 }

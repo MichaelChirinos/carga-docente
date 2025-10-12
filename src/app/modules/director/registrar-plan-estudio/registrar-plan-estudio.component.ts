@@ -4,7 +4,6 @@ import { PlanEstudioRequest, PlanEstudioResponse } from '../../../core/models/pl
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FacultadResponse } from '../../../core/models/facultad';
 
 @Component({
   selector: 'app-registrar-plan-estudio',
@@ -16,7 +15,6 @@ import { FacultadResponse } from '../../../core/models/facultad';
 export class RegistrarPlanEstudioComponent {
   planesLista: PlanEstudioRequest[] = [];
   nuevoPlan: PlanEstudioRequest = {
-    idFacultad: 0,
     nombre: ''
   };
   facultades: any[] = [];
@@ -29,38 +27,13 @@ export class RegistrarPlanEstudioComponent {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.cargarFacultades();
-  }
-
-  cargarFacultades() {
-    this.isLoading = true;
-    this.directorService.obtenerFacultades().subscribe({
-      next: (response: FacultadResponse) => {
-        this.facultades = response.data || [];
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.showMessage('Error al cargar facultades', true);
-        console.error(err);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  // Método para obtener el nombre de la facultad
-  getNombreFacultad(idFacultad: number): string {
-    const facultad = this.facultades.find(f => f.idFacultad === idFacultad);
-    return facultad ? facultad.nombre : '';
-  }
 
   agregarPlan(): void {
     if (this.validarPlan(this.nuevoPlan)) {
       this.planesLista.push({
-        idFacultad: this.nuevoPlan.idFacultad,
         nombre: this.nuevoPlan.nombre.trim()
       });
-      this.nuevoPlan = { idFacultad: 0, nombre: '' };
+      this.nuevoPlan = { nombre: '' };
     }
   }
 
@@ -91,10 +64,6 @@ export class RegistrarPlanEstudioComponent {
   private validarPlan(plan: PlanEstudioRequest): boolean {
     if (!plan.nombre?.trim()) {
       this.showMessage('El nombre del plan es obligatorio', true);
-      return false;
-    }
-    if (plan.idFacultad <= 0) {
-      this.showMessage('Debe seleccionar una facultad', true);
       return false;
     }
     return true;

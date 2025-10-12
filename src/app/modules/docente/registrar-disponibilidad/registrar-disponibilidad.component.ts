@@ -4,18 +4,18 @@ import { DocenteService } from '../../../core/services/docente.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { DisponibilidadRequest } from '../../../core/models/disponibilidad';
 
 @Component({
   selector: 'app-registrar-disponibilidad',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './registrar-disponibilidad.component.html',
-  styleUrls: ['./registrar-disponibilidad.component.scss']
+  templateUrl: './registrar-disponibilidad.component.html'
 })
 export class RegistrarDisponibilidadComponent implements OnInit {
   disponibilidadForm: FormGroup;
-  cargasElectivas: any[] = [];
-  diasSemana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+  ciclosAcademicos: any[] = []; 
+  diasSemana = ['LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO']; 
   idDocente: number = 0;
   isEditing = false;
   idDisponibilidadEditar: number | null = null;
@@ -32,7 +32,7 @@ export class RegistrarDisponibilidadComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.disponibilidadForm = this.fb.group({
-      idCargaElectiva: [null, Validators.required],
+      idCicloAcademico: [null, Validators.required],
       disponibilidades: this.fb.array([])
     });
   }
@@ -43,11 +43,12 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         this.isEditing = true;
         this.idDisponibilidadEditar = +params['id'];
         this.cargarDatosEdicion();
+      } else {
+        this.agregarDisponibilidad(); // Solo agregar inicial si no está editando
       }
     });
     this.obtenerDocenteId();
-    this.cargarCargasElectivas();
-    this.agregarDisponibilidad();
+    this.cargarCiclosAcademicos();
   }
 
   get disponibilidadesArray(): FormArray {
@@ -56,9 +57,9 @@ export class RegistrarDisponibilidadComponent implements OnInit {
 
   agregarDisponibilidad(): void {
     this.disponibilidadesArray.push(this.fb.group({
-      diaSemana: ['lunes', Validators.required],
-      horaInicio: ['08:00', Validators.required],
-      horaFin: ['10:00', Validators.required]
+      diaSemana: ['LUNES', Validators.required],
+      horaInicio: ['08:00', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]],
+      horaFin: ['10:00', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]]
     }));
   }
 
@@ -72,6 +73,7 @@ export class RegistrarDisponibilidadComponent implements OnInit {
     this.isLoading = true;
     this.docenteService.getDisponibilidadById(this.idDisponibilidadEditar!).subscribe({
       next: (response) => {
+        // Limpiar y cargar solo una disponibilidad para edición
         this.disponibilidadesArray.clear();
         this.disponibilidadesArray.push(this.fb.group({
           diaSemana: [response.data.diaSemana, Validators.required],
@@ -80,13 +82,13 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         }));
         
         this.disponibilidadForm.patchValue({
-          idCargaElectiva: response.data.cargaElectiva.idCargaElectiva
+          idCicloAcademico: response.data.cicloAcademico.idCicloAcademico
         });
         
         this.isLoading = false;
       },
       error: (err) => {
-        this.showMessage('Error al cargar datos para edición', true);
+        this.showMessage('Error al cargar datos para edición: ' + (err.error?.message || ''), true);
         this.isLoading = false;
       }
     });
@@ -106,24 +108,38 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        this.showMessage('Error al obtener datos del docente', true);
+        this.showMessage('Error al obtener datos del docente: ' + (err.error?.message || ''), true);
         this.isLoading = false;
       }
     });
   }
 
-  cargarCargasElectivas(): void {
+  cargarCiclosAcademicos(): void {
     this.isLoading = true;
-    this.docenteService.obtenerTodasCargasElectivas().subscribe({
-      next: (response: any) => {
-        this.cargasElectivas = response.data || [];
+    this.docenteService.obtenerCiclosAcademicos().subscribe({
+      next: (response) => {
+        this.ciclosAcademicos = response.data || [];
         this.isLoading = false;
       },
       error: (err) => {
-        this.showMessage('Error al cargar cargas electivas', true);
+        this.showMessage('Error al cargar ciclos académicos: ' + (err.error?.message || ''), true);
         this.isLoading = false;
       }
     });
+  }
+
+  validarHorarios(): boolean {
+    for (let i = 0; i < this.disponibilidadesArray.length; i++) {
+      const disp = this.disponibilidadesArray.at(i);
+      const horaInicio = disp.get('horaInicio')?.value;
+      const horaFin = disp.get('horaFin')?.value;
+      
+      if (horaInicio >= horaFin) {
+        this.showMessage(`La hora de inicio debe ser menor que la hora de fin en la disponibilidad ${i + 1}`, true);
+        return false;
+      }
+    }
+    return true;
   }
 
   onSubmit(): void {
@@ -132,10 +148,15 @@ export class RegistrarDisponibilidadComponent implements OnInit {
       return;
     }
 
+    if (!this.validarHorarios()) {
+      return;
+    }
+
     const formValue = this.disponibilidadForm.value;
-    const requests = this.disponibilidadesArray.value.map((disp: any) => ({
+    
+    const requests: DisponibilidadRequest[] = this.disponibilidadesArray.value.map((disp: any) => ({
       idDocente: this.idDocente,
-      idCargaElectiva: formValue.idCargaElectiva,
+      idCicloAcademico: formValue.idCicloAcademico,
       diaSemana: disp.diaSemana,
       horaInicio: disp.horaInicio,
       horaFin: disp.horaFin
@@ -150,27 +171,47 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         requests[0]
       ).subscribe({
         next: (response) => {
-          this.showMessage(response.message, false);
-          this.router.navigate(['/docente/gestionar-disponibilidad']);
+          this.showMessage(response.message || 'Disponibilidad actualizada correctamente', false);
+          setTimeout(() => {
+            this.router.navigate(['/docente/gestionar-disponibilidad']);
+          }, 1500);
         },
         error: (err) => {
-          this.showMessage('Error al actualizar: ' + err.error?.message, true);
+          this.showMessage('Error al actualizar: ' + (err.error?.message || err.message), true);
           this.isLoading = false;
         }
       });
     } else {
       // Registro múltiple
-      this.docenteService.registrarDisponibilidadesMultiples(requests).subscribe({
-        next: (response) => {
-          this.showMessage(response.message, false);
-          this.router.navigate(['/docente/gestionar-disponibilidad']);
-        },
-        error: (err) => {
-          this.showMessage('Error al registrar: ' + err.error?.message, true);
-          this.isLoading = false;
-        }
-      });
+      this.registrarDisponibilidadesIndividualmente(requests);
     }
+  }
+
+  private registrarDisponibilidadesIndividualmente(requests: DisponibilidadRequest[]): void {
+    const registros = requests.map(disponibilidad => 
+      this.docenteService.registrarDisponibilidad(disponibilidad).toPromise()
+    );
+
+    Promise.all(registros)
+      .then(results => {
+        this.isLoading = false;
+        const exitosos = results.filter(r => r?.status === 201 || r?.status === 200).length;
+        const errores = results.filter(r => r?.status !== 201 && r?.status !== 200).length;
+        
+        if (errores === 0) {
+          this.showMessage(`Se registraron ${exitosos} disponibilidades correctamente`, false);
+        } else {
+          this.showMessage(`Se registraron ${exitosos} de ${requests.length} disponibilidades. ${errores} tuvieron errores.`, true);
+        }
+        
+        setTimeout(() => {
+          this.router.navigate(['/docente/gestionar-disponibilidad']);
+        }, 2000);
+      })
+      .catch(err => {
+        this.isLoading = false;
+        this.showMessage('Error al registrar disponibilidades: ' + (err.error?.message || err.message), true);
+      });
   }
 
   private showMessage(msg: string, isError: boolean): void {

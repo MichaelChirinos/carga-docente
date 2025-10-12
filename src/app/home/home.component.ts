@@ -18,7 +18,7 @@ currentYear = new Date().getFullYear();
   navigateTo(module: string): void {
     this.selectedModule = module;
     this.router.navigate(['/login'], { 
-      state: { requiredRole: module } // 👈 Enviamos el rol requerido
+      state: { requiredRole: module }
     });
   }
 }

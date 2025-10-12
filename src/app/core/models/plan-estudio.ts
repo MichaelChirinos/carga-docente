@@ -1,5 +1,4 @@
 export interface PlanEstudioRequest {
-  idFacultad: number;
   nombre: string;
 }
 
@@ -8,10 +7,6 @@ export interface PlanEstudioResponse {
   message: string;
   data: {
     idPlanDeEstudio: number;
-    facultad: {
-      idFacultad: number;
-      nombre: string;
-    };
     codigo: number;
     nombre: string;
     enabled: boolean;

@@ -12,18 +12,20 @@ export interface CursoRequest extends CursoBase {
     diaSemana: string;
     horaInicio: string;
     horaFin: string;
-    aula: string;
+    idAula: number; // CAMBIADO: de 'aula' a 'idAula'
     duracionHoras: number;
   }[];
 }
 
 export interface CursoIndividualRequest extends CursoBase {
-  tipoSesion: string;
-  diaSemana: string;
-  horaInicio: string;
-  horaFin: string;
-  aula: string;
-  duracionHoras: number;
+  cursoHorario: {
+    tipoSesion: string;
+    diaSemana: string;
+    horaInicio: string;
+    horaFin: string;
+    idAula: number; // CAMBIADO: de 'aula' a 'idAula'
+    duracionHoras: number;
+  }[];
 }
 
 export interface CursoResponse {
@@ -31,6 +33,8 @@ export interface CursoResponse {
   message: string;
   data: {
     idCurso: number;
+    codigo: string;
+    grupo: string;
     asignatura: {
       idAsignatura: number;
       nombre: string;
@@ -47,13 +51,21 @@ export interface CursoResponse {
       idCicloAcademico: number;
       nombre: string;
     };
-    grupo: string;
-    tipoSesion: string;
-    diaSemana: string;
-    horaInicio: string;
-    horaFin: string;
-    aula: string;
-    duracionHoras: number;
+    cursoHorario: {
+      idCursoHorario: number;
+      tipoSesion: string;
+      diaSemana: string;
+      horaInicio: string;
+      horaFin: string;
+      duracionHoras: number;
+      aula: {  // Esto queda igual porque es la respuesta del API
+        idAula: number;
+        tipo: string;
+        nombre: string | null;
+        enabled: boolean;
+      };
+      enabled: boolean;
+    }[];
     enabled: boolean;
   };
 }

@@ -1,11 +1,7 @@
+// escuela.model.ts
 export interface EscuelaRequest {
   nombre: string;
-  idFacultad: number;
-}
-
-export interface FacultadResponse {
-  idFacultad: number;
-  nombre: string;
+  // Elimina facultad si no se usa
 }
 
 export interface EscuelaResponse {
@@ -15,7 +11,6 @@ export interface EscuelaResponse {
     idEscuela: number;
     codigo: string;
     nombre: string;
-    facultad: FacultadResponse;
     enabled: boolean;
   };
 }

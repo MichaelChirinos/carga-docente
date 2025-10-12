@@ -1,24 +1,22 @@
+// registrar-escuela.component.ts
 import { Component } from '@angular/core';
 import { DirectorService } from '../services/director.service';
 import { EscuelaRequest, EscuelaResponse } from '../../../core/models/escuela';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-registrar-escuela',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './registrar-escuela.component.html',
-  styleUrls: ['./registrar-escuela.component.scss']
+  imports: [CommonModule, FormsModule, RouterModule], // Agregar RouterModule
+  templateUrl: './registrar-escuela.component.html'
 })
 export class RegistrarEscuelaComponent {
   escuelasLista: EscuelaRequest[] = [];
   nuevaEscuela: EscuelaRequest = {
     nombre: '',
-    idFacultad: 0
   };
-  facultades: any[] = [];
   isLoading = false;
   message = '';
   isError = false;
@@ -28,37 +26,12 @@ export class RegistrarEscuelaComponent {
     private router: Router
   ) {}
 
-  ngOnInit() {
-    this.cargarFacultades();
-  }
-
-  cargarFacultades(): void {
-    this.isLoading = true;
-    this.directorService.obtenerFacultades().subscribe({
-      next: (response: any) => {
-        this.facultades = response.data || response;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.showMessage('Error al cargar facultades', true);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  // Método para obtener el nombre de la facultad
-  getNombreFacultad(idFacultad: number): string {
-    const facultad = this.facultades.find(f => f.idFacultad === idFacultad);
-    return facultad ? facultad.nombre : 'No asignada';
-  }
-
   agregarEscuela(): void {
     if (this.validarEscuela(this.nuevaEscuela)) {
       this.escuelasLista.push({
-        nombre: this.nuevaEscuela.nombre.trim(),
-        idFacultad: this.nuevaEscuela.idFacultad
+        nombre: this.nuevaEscuela.nombre.trim()
       });
-      this.nuevaEscuela = { nombre: '', idFacultad: 0 };
+      this.nuevaEscuela = { nombre: '' };
     }
   }
 
@@ -73,10 +46,12 @@ export class RegistrarEscuelaComponent {
     }
 
     this.isLoading = true;
+    
+    // Si tu backend acepta múltiples escuelas
     this.directorService.registrarEscuelasMultiples(this.escuelasLista).subscribe({
       next: (response: EscuelaResponse) => {
         this.showMessage(response.message || 'Escuelas registradas con éxito', false);
-        setTimeout(() => this.router.navigate(['/admin/gestionar-escuelas']), 1500);
+        setTimeout(() => this.router.navigate(['/admin/gestionar-escuelas']), 1500); // Cambiado a listar-escuelas
       },
       error: (err) => {
         this.showMessage('Error: ' + (err.error?.message || 'No se pudieron registrar las escuelas'), true);
@@ -86,13 +61,31 @@ export class RegistrarEscuelaComponent {
     });
   }
 
+  // Método alternativo si solo registras una escuela a la vez
+  registrarEscuelaIndividual(): void {
+    if (!this.nuevaEscuela.nombre.trim()) {
+      this.showMessage('El nombre de la escuela es obligatorio', true);
+      return;
+    }
+
+    this.isLoading = true;
+    this.directorService.registrarEscuela(this.nuevaEscuela).subscribe({
+      next: (response: EscuelaResponse) => {
+        this.showMessage(response.message || 'Escuela registrada con éxito', false);
+        this.nuevaEscuela = { nombre: '' };
+        setTimeout(() => this.router.navigate(['/admin/gestionar-escuelas']), 1500);
+      },
+      error: (err) => {
+        this.showMessage('Error: ' + (err.error?.message || 'No se pudo registrar la escuela'), true);
+        console.error(err);
+        this.isLoading = false;
+      }
+    });
+  }
+
   private validarEscuela(escuela: EscuelaRequest): boolean {
     if (!escuela.nombre?.trim()) {
       this.showMessage('El nombre de la escuela es obligatorio', true);
-      return false;
-    }
-    if (escuela.idFacultad <= 0) {
-      this.showMessage('Debe seleccionar una facultad', true);
       return false;
     }
     return true;

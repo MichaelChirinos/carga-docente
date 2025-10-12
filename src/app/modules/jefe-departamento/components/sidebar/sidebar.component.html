@@ -1,0 +1,30 @@
+<div class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg border-r border-gray-200">
+  <!-- Logo -->
+  <div class="flex items-center justify-center h-16 border-b border-gray-200">
+    <img src="assets/images/auth/escudo.png" alt="UNMSM" class="h-8">
+    <span class="ml-2 text-sm font-semibold text-gray-700">Jefe Departamento</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="mt-8">
+    <div class="px-4 space-y-2">
+      @for (item of menuItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="bg-blue-50 text-blue-600 border-blue-500"
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-lg border-l-4 border-transparent text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors group"
+        >
+          <svg 
+            class="w-5 h-5 mr-3" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon"></path>
+          </svg>
+          {{ item.label }}
+        </a>
+      }
+    </div>
+  </nav>
+</div>

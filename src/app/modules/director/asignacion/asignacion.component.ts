@@ -21,12 +21,12 @@ export class AsignacionComponent {
     private router: Router
   ) {}
 
-  ejecutarAlgoritmo(idCargaElectiva: number = 1): void {
+  ejecutarAlgoritmo(idCicloAcademico: number = 1): void {
     this.loading = true;
     this.error = false;
     this.success = false;
 
-    this.docenteService.ejecutarAlgoritmoAsignacion(idCargaElectiva).subscribe({
+    this.docenteService.ejecutarAlgoritmoAsignacion(idCicloAcademico).subscribe({
       next: (response) => {
         this.loading = false;
         this.success = true;

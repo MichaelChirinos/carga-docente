@@ -5,7 +5,16 @@ export interface Dedicacion {
   idDedicacion: number;
   nombre: string;
   horasTotales: number;
-  horasLectivasMinima: number;
+  horasMinLectivas: number;
+  horasMaxLectivas: number;  // FALTABA ESTE CAMPO
+  enabled?: boolean;
+}
+
+export interface DedicacionRequest {
+  nombre: string;
+  horasTotales: number;
+  horasMinLectivas: number;
+  horasMaxLectivas: number;
   enabled?: boolean;
 }
 
@@ -13,7 +22,7 @@ export interface Categoria {
   idCategoria: number;
   nombre: string;
   descripcion?: string | null;  // Hacerla opcional y aceptar null
-  enabled?: boolean;
+  enabled: boolean;
 }
 
 export type CategoriaRequest = Omit<Categoria, 'idCategoria'>;

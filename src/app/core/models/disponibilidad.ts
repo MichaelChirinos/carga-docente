@@ -1,43 +1,48 @@
 export interface DisponibilidadRequest {
   idDocente: number;
-  idCargaElectiva: number;
+  idCicloAcademico: number;  // CAMBIADO: de idCargaElectiva a idCicloAcademico
   diaSemana: string;
   horaInicio: string; // Formato "HH:mm"
   horaFin: string;    // Formato "HH:mm"
 }
 
 export interface DisponibilidadResponse {
-  status: number;
-  message: string;
-  data: {
-    docente: {
-      idDocente: number;
-      usuario: {
-        nombre: string;
-        apellido: string;
-      };
-    };
-    cargaElectiva: {
-      idCargaElectiva: number;
+  idDisponibilidad?: number;
+  docente: {
+    idDocente: number;
+    codigo: string;
+    usuario: {
       nombre: string;
+      apellido: string;
     };
-    diaSemana: string;
-    horaInicio: string;
-    horaFin: string;
-    enabled: boolean;
   };
+  cicloAcademico: {  // CAMBIADO: de cargaElectiva a cicloAcademico
+    idCicloAcademico: number;
+    nombre: string;
+  };
+  diaSemana: string;
+  horaInicio: string;
+  horaFin: string;
+  enabled: boolean;
 }
 
-export interface PlanEstudioListResponse {
+export interface DisponibilidadApiResponse {
+  status: number;
+  message: string;
+  data: DisponibilidadResponse;
+}
+
+export interface DisponibilidadListResponse {
+  status: number;
+  message: string;
+  data: DisponibilidadResponse[];
+}
+
+export interface CicloAcademicoListResponse {
   status: number;
   message: string;
   data: {
-    idPlanDeEstudio: number;
-    facultad: {
-      idFacultad: number;
-      nombre: string;
-    };
-    codigo: number;
+    idCicloAcademico: number;
     nombre: string;
     enabled: boolean;
   }[];

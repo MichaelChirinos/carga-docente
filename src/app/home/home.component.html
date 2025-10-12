@@ -1,8 +1,9 @@
+<!-- src/app/components/home/home.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
   <!-- Hero Section -->
   <div class="container mx-auto px-6 py-12 md:py-16 text-center">
     <div class="mb-6">
-      <img src="assets\images\auth\escudo.png" alt="Logo UNMSM" class="h-20 mx-auto">
+      <img src="assets/images/auth/escudo.png" alt="Logo UNMSM" class="h-20 mx-auto">
     </div>
     <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
       Sistema de <span class="text-blue-600">Gestión Académica</span>
@@ -12,22 +13,22 @@
     </p>
   </div>
 
-  <!-- Cards Section -->
-  <div class="container mx-auto px-6 pb-16">
+  <!-- Cards Section - Primera Fila (3 cards) -->
+  <div class="container mx-auto px-6 pb-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
       <!-- Card Docente -->
       <div 
-  (click)="navigateTo('docente')"
-  class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
->
-  <div class="h-48 flex items-center justify-center bg-gray-100">
-    <img 
-      src="assets/images/auth/Docentes.jpg" 
-      alt="Docente" 
-      class="w-full h-full object-cover"
-    >
-  </div>
-  <div class="p-6">
+        (click)="navigateTo('docente')"
+        class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+      >
+        <div class="h-48 flex items-center justify-center bg-gray-100">
+          <img 
+            src="assets/images/auth/Docentes.jpg" 
+            alt="Docente" 
+            class="w-full h-full object-cover"
+          >
+        </div>
+        <div class="p-6">
           <div class="flex items-center mb-3">
             <div class="bg-blue-100 p-2 rounded-full mr-3">
               <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +37,7 @@
             </div>
             <h2 class="text-xl font-bold text-gray-800">Área Docente</h2>
           </div>
-          <p class="text-gray-600 mb-4">Gestión de disponibilidad horaria y ver reporte </p>
+          <p class="text-gray-600 mb-4">Gestión de disponibilidad horaria y ver reporte</p>
           <div class="mt-4 text-blue-600 font-medium group-hover:underline flex items-center">
             Ingresar como docente
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,17 +49,17 @@
 
       <!-- Card Director -->
       <div 
-  (click)="navigateTo('director')"
-  class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
->
-  <div class="h-48 flex items-center justify-center bg-gray-100">
-    <img 
-      src="assets/images/auth/director.jpg" 
-      alt="Director" 
-      class="w-full h-full object-cover"
-    >
-  </div>
-  <div class="p-6">
+        (click)="navigateTo('director')"
+        class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+      >
+        <div class="h-48 flex items-center justify-center bg-gray-100">
+          <img 
+            src="assets/images/auth/director.jpg" 
+            alt="Director" 
+            class="w-full h-full object-cover"
+          >
+        </div>
+        <div class="p-6">
           <div class="flex items-center mb-3">
             <div class="bg-purple-100 p-2 rounded-full mr-3">
               <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,17 +80,17 @@
 
       <!-- Card Admin -->
       <div 
-  (click)="navigateTo('admin')"
-  class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
->
-  <div class="h-48 flex items-center justify-center bg-gray-100">
-    <img 
-      src="assets/images/auth/admin.jpg" 
-      alt="Administrador" 
-      class="w-full h-full object-cover"
-    >
-  </div>
-  <div class="p-6">
+        (click)="navigateTo('admin')"
+        class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+      >
+        <div class="h-48 flex items-center justify-center bg-gray-100">
+          <img 
+            src="assets/images/auth/admin.jpg" 
+            alt="Administrador" 
+            class="w-full h-full object-cover"
+          >
+        </div>
+        <div class="p-6">
           <div class="flex items-center mb-3">
             <div class="bg-green-100 p-2 rounded-full mr-3">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +103,73 @@
           <p class="text-gray-600 mb-4">Configuración del sistema, gestión de usuarios y facultades</p>
           <div class="mt-4 text-green-600 font-medium group-hover:underline flex items-center">
             Ingresar como administrador
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards Section - Segunda Fila (2 cards centradas) -->
+  <div class="container mx-auto px-6 pb-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <!-- Card Jefe de Departamento -->
+      <div 
+        (click)="navigateTo('jefe-departamento')"
+        class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+      >
+        <div class="h-48 flex items-center justify-center bg-gray-100">
+          <img 
+            src="assets/images/auth/departamento.jpg" 
+            alt="Jefe de Departamento" 
+            class="w-full h-full object-cover"
+          >
+        </div>
+        <div class="p-6">
+          <div class="flex items-center mb-3">
+            <div class="bg-orange-100 p-2 rounded-full mr-3">
+              <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Jefe de Departamento</h2>
+          </div>
+          <p class="text-gray-600 mb-4">Gestión de departamentos académicos y coordinación de actividades</p>
+          <div class="mt-4 text-orange-600 font-medium group-hover:underline flex items-center">
+            Ingresar como jefe de departamento
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card Logística -->
+      <div 
+        (click)="navigateTo('logistica')"
+        class="group bg-white rounded-xl shadow-lg overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
+      >
+        <div class="h-48 flex items-center justify-center bg-gray-100">
+          <img 
+            src="assets/images/auth/logistica.jpg" 
+            alt="Personal de Logística" 
+            class="w-full h-full object-cover"
+          >
+        </div>
+        <div class="p-6">
+          <div class="flex items-center mb-3">
+            <div class="bg-teal-100 p-2 rounded-full mr-3">
+              <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800">Personal de Logística</h2>
+          </div>
+          <p class="text-gray-600 mb-4">Gestión de recursos, infraestructura y apoyo logístico académico</p>
+          <div class="mt-4 text-teal-600 font-medium group-hover:underline flex items-center">
+            Ingresar como personal de logística
             <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
