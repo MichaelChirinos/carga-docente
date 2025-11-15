@@ -105,7 +105,7 @@ export class ListarCiclosAcademicosComponent {
   }
 
   editarCiclo(id: number): void {
-    this.router.navigate(['/director/editar-ciclo-academico', id]);
+    this.router.navigate(['/Departamento Academico/editar-ciclo-academico', id]);
   }
 
   // Cerrar modales

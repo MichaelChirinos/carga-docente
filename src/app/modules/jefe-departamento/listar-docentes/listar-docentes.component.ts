@@ -156,7 +156,7 @@ export class ListarDocentesComponent implements OnInit {
   }
 
   editarDocente(id: number): void {
-    this.router.navigate(['/jefe-departamento/editar-docente', id]);
+    this.router.navigate(['/Escuela Profesional/editar-docente', id]);
   }
 
   // Helper functions

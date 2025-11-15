@@ -111,7 +111,7 @@ export class ListarDisponibilidadComponent implements OnInit {
   }
 
   editarDisponibilidad(id: number) {
-    this.router.navigate(['/docente/editar-disponibilidad', id]);
+    this.router.navigate(['/Docente/editar-disponibilidad', id]);
   }
 
   eliminarDisponibilidad(id: number) {

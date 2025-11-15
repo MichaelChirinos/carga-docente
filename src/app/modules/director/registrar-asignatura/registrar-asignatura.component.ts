@@ -55,7 +55,7 @@ export class RegistrarAsignaturaComponent implements OnInit {
       error: (err) => {
         this.showMessage('Error al cargar asignatura', true);
         this.isLoading = false;
-        this.router.navigate(['/director/gestionar-asignaturas']);
+        this.router.navigate(['/Departamento Academico/gestionar-asignaturas']);
       }
     });
   }
@@ -89,7 +89,7 @@ export class RegistrarAsignaturaComponent implements OnInit {
       this.directorService.actualizarAsignatura(this.asignaturaId, this.asignaturaData).subscribe({
         next: (response) => {
           this.showMessage('Asignatura actualizada con éxito', false);
-          setTimeout(() => this.router.navigate(['/director/gestionar-asignaturas']), 1500);
+          setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-asignaturas']), 1500);
         },
         error: (err) => this.handleError(err)
       });
@@ -98,7 +98,7 @@ export class RegistrarAsignaturaComponent implements OnInit {
         this.directorService.registrarAsignaturas(this.asignaturasLista).subscribe({
           next: (response) => {
             this.showMessage(`${response.message}`, false);
-            setTimeout(() => this.router.navigate(['/director/gestionar-asignaturas']), 1500);
+            setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-asignaturas']), 1500);
           },
           error: (err) => this.handleError(err)
         });
@@ -106,7 +106,7 @@ export class RegistrarAsignaturaComponent implements OnInit {
         this.directorService.registrarAsignatura(this.asignaturaData).subscribe({
           next: (response) => {
             this.showMessage('Asignatura registrada con éxito', false);
-            setTimeout(() => this.router.navigate(['/director/gestionar-asignaturas']), 1500);
+            setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-asignaturas']), 1500);
           },
           error: (err) => this.handleError(err)
         });

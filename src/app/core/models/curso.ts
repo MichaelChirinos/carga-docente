@@ -1,71 +1,82 @@
 export interface CursoBase {
   idAsignatura: number;
-  idPlanDeEstudio: number;
+  planDeEstudios: string[];  // CAMBIADO: array de strings
   idEscuela: number;
   idCicloAcademico: number;
+  ciclo: number;  // AGREGADO
   grupo: string;
 }
 
-export interface CursoRequest extends CursoBase {
-  cursoHorario: {
-    tipoSesion: string;
-    diaSemana: string;
-    horaInicio: string;
-    horaFin: string;
-    idAula: number; // CAMBIADO: de 'aula' a 'idAula'
-    duracionHoras: number;
-  }[];
+export interface HorarioRequest {
+  tipoSesion: string;
+  diaSemana: string;
+  horaInicio: string;
+  horaFin: string;
+  duracionHoras: number;
+  idAula?: number;  // OPCIONAL: según el JSON de ejemplo no viene
 }
 
+export interface CursoRequest extends CursoBase {
+  horarios: HorarioRequest[];  // CAMBIADO: de 'cursoHorario' a 'horarios'
+}
+
+// Si necesitas una interface individual, sería igual
 export interface CursoIndividualRequest extends CursoBase {
-  cursoHorario: {
-    tipoSesion: string;
-    diaSemana: string;
-    horaInicio: string;
-    horaFin: string;
-    idAula: number; // CAMBIADO: de 'aula' a 'idAula'
-    duracionHoras: number;
-  }[];
+  horarios: HorarioRequest[];
+}
+
+// Interfaces para la respuesta
+export interface AulaResponse {
+  idAula: number;
+  tipo: string;
+  nombre: string | null;
+  enabled: boolean;
+}
+
+export interface HorarioResponse {
+  idHorario: number;  // CAMBIADO: de 'idCursoHorario' a 'idHorario'
+  tipoSesion: string;
+  diaSemana: string;
+  horaInicio: string;
+  horaFin: string;
+  duracionHoras: number;
+  aula: AulaResponse | null;  // según JSON puede ser null
+  enabled: boolean;
+}
+
+export interface CursoData {
+  idCurso: number;
+  codigo: string;
+  grupo: string;
+  ciclo: number;  // AGREGADO
+  asignatura: {
+    idAsignatura: number;
+    nombre: string;
+    codigo: string;  // AGREGADO: según JSON
+  };
+  planDeEstudios: string[];  // CAMBIADO: array de strings
+  escuela: {
+    idEscuela: number;
+    nombre: string;
+  };
+  cicloAcademico: {
+    idCicloAcademico: number;
+    nombre: string;
+    enabled: boolean;
+  };
+  horarios: HorarioResponse[];  // CAMBIADO: de 'cursoHorario' a 'horarios'
+  enabled: boolean;
 }
 
 export interface CursoResponse {
   status: number;
   message: string;
-  data: {
-    idCurso: number;
-    codigo: string;
-    grupo: string;
-    asignatura: {
-      idAsignatura: number;
-      nombre: string;
-    };
-    planDeEstudio: {
-      idPlanDeEstudio: number;
-      nombre: string;
-    };
-    escuela: {
-      idEscuela: number;
-      nombre: string;
-    };
-    cicloAcademico: {
-      idCicloAcademico: number;
-      nombre: string;
-    };
-    cursoHorario: {
-      idCursoHorario: number;
-      tipoSesion: string;
-      diaSemana: string;
-      horaInicio: string;
-      horaFin: string;
-      duracionHoras: number;
-      aula: {  // Esto queda igual porque es la respuesta del API
-        idAula: number;
-        tipo: string;
-        nombre: string | null;
-        enabled: boolean;
-      };
-      enabled: boolean;
-    }[];
-    enabled: boolean;
-  };
+  data: CursoData;
+}
+
+// Si necesitas también para lista
+export interface CursoListResponse {
+  status: number;
+  message: string;
+  data: CursoData[];
 }

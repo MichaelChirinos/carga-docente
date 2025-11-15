@@ -61,16 +61,16 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
           fechaFin: ciclo.fechaFin
         };
         
-        // Formatear fechas para los inputs
-        this.fechaInicioInput = this.parseBackendDate(ciclo.fechaInicio);
-        this.fechaFinInput = this.parseBackendDate(ciclo.fechaFin);
+        // Formatear fechas para los inputs (los inputs type="date" necesitan yyyy-MM-dd)
+        this.fechaInicioInput = this.formatDateForInput(ciclo.fechaInicio);
+        this.fechaFinInput = this.formatDateForInput(ciclo.fechaFin);
         
         this.isLoading = false;
       },
       error: (err) => {
         this.showMessage('Error al cargar ciclo académico', true);
         this.isLoading = false;
-        this.router.navigate(['/director/gestionar-ciclos-academicos']);
+        this.router.navigate(['/Departamento Academico/gestionar-ciclos-academicos']);
       }
     });
   }
@@ -79,8 +79,9 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
     this.formSubmitted = true;
     if (form.invalid) return;
 
-    this.cicloData.fechaInicio = this.formatDate(this.fechaInicioInput);
-    this.cicloData.fechaFin = this.formatDate(this.fechaFinInput);
+    // Convertir a formato yyyy-MM-dd para el backend
+    this.cicloData.fechaInicio = this.formatDateForBackend(this.fechaInicioInput);
+    this.cicloData.fechaFin = this.formatDateForBackend(this.fechaFinInput);
 
     this.isLoading = true;
 
@@ -88,7 +89,7 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
       this.directorService.actualizarCicloAcademico(this.cicloId, this.cicloData).subscribe({
         next: (response) => {
           this.showMessage('Ciclo académico actualizado con éxito', false);
-          setTimeout(() => this.router.navigate(['/director/gestionar-ciclos-academicos']), 1500);
+          setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-ciclos-academicos']), 1500);
         },
         error: (err) => this.handleError(err)
       });
@@ -96,7 +97,7 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
       this.directorService.registrarCicloAcademico(this.cicloData).subscribe({
         next: (response) => {
           this.showMessage('Ciclo académico registrado con éxito', false);
-          setTimeout(() => this.router.navigate(['/director/gestionar-ciclos-academicos']), 1500);
+          setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-ciclos-academicos']), 1500);
         },
         error: (err) => this.handleError(err)
       });
@@ -104,23 +105,51 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
   }
 
   private handleError(err: any): void {
-    this.showMessage('Error: ' + (err.error?.message || 'Intente nuevamente'), true);
-    console.error(err);
+    const errorMessage = err.error?.data?.[0]?.message || err.error?.message || 'Intente nuevamente';
+    this.showMessage('Error: ' + errorMessage, true);
+    console.error('Error detallado:', err);
     this.isLoading = false;
   }
 
-  private formatDate(dateString: string): string {
+  // Formatear para el backend: yyyy-MM-dd
+  private formatDateForBackend(dateString: string): string {
     if (!dateString) return '';
+    
+    // Si ya está en formato yyyy-MM-dd, devolverlo
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateString;
+    }
+    
+    // Convertir de cualquier formato a yyyy-MM-dd
     const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   }
 
-  private parseBackendDate(backendDate: string): string {
+  // Formatear para el input type="date": yyyy-MM-dd
+  private formatDateForInput(backendDate: string): string {
     if (!backendDate) return '';
-    const [year, month, day] = backendDate.split('-');
+    
+    // Si ya está en formato yyyy-MM-dd, devolverlo
+    if (backendDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return backendDate;
+    }
+    
+    // Convertir de dd-MM-yyyy a yyyy-MM-dd
+    if (backendDate.match(/^\d{2}-\d{2}-\d{4}$/)) {
+      const [day, month, year] = backendDate.split('-');
+      return `${year}-${month}-${day}`;
+    }
+    
+    // Para cualquier otro formato, usar Date
+    const date = new Date(backendDate);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    
     return `${year}-${month}-${day}`;
   }
 
@@ -128,6 +157,6 @@ export class RegistrarCicloAcademicoComponent implements OnInit {
     this.message = msg;
     this.isError = isError;
     this.isLoading = false;
-    setTimeout(() => this.message = '', 3000);
+    setTimeout(() => this.message = '', 5000); // Aumenté a 5 segundos para leer mejor los errores
   }
 }

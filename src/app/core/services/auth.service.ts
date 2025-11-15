@@ -14,40 +14,50 @@ export class AuthService {
     private router: Router
   ) {}
 
-// Reemplaza el método login por este:
+// En auth.service.ts
 login(email: string, password: string): Observable<any> {
   return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
     tap((response) => {
-      // Validación y almacenamiento
-      if (!response?.data?.usuario?.idRol) throw new Error('Respuesta inválida');
-      this.setToken(response.data.token);
-      this.currentUserSubject.next(response.data.usuario);
-
-      // Redirección optimizada
-      const rolePath = this.getRolePath(response.data.usuario.idRol);
-      setTimeout(() => {
-        this.router.navigateByUrl(rolePath, { replaceUrl: true })
-          .catch(err => console.error('Error en navegación:', err));
-      }, 0);
-    }),
-    catchError((error) => {
-      if (error.status === 401 || error.status === 403) {
-        // Forzar un error 403 cuando las credenciales son válidas pero el rol no coincide
-        throw { status: 403, error: { message: 'Acceso denegado' } };
+      console.log('🔍 Respuesta completa del backend:', response);
+      
+      if (!response || !response.data) {
+        throw new Error('Respuesta inválida del servidor');
       }
-      throw error;
+      
+      const user = response.data.usuario;
+      const token = response.data.token;
+      
+      console.log('🔍 Usuario:', user);
+      console.log('🔍 Rol:', user?.rol);
+      
+      // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
+      if (!user || !user.rol?.idRol) {
+        console.error('❌ Usuario sin rol válido:', user);
+        throw new Error('Estructura de usuario inválida - rol no encontrado');
+      }
+      
+      if (!token) {
+        throw new Error('Token no recibido');
+      }
+      
+      this.setToken(token);
+      this.currentUserSubject.next(user);
     }),
-    map(response => response.data.usuario) // 👈 Devuelve el usuario
+    map(response => response)
   );
 }
+// En auth.service.ts
+// En auth.service.ts
 public getRolePath(idRol: number): string {
-  return idRol === 1 ? 'admin' :
-         idRol === 2 ? 'director' :
-         idRol === 3 ? 'docente' :
-         idRol === 4 ? 'jefe-departamento' :
-         idRol === 5 ? 'logistica' : 'login';
+  const routes = {
+    1: '/Administrador',
+    2: '/Departamento Academico', 
+    3: '/Docente',
+    4: '/Escuela Profesional',
+    5: '/Logistica'
+  };
+  return routes[idRol as keyof typeof routes] || '/login';
 }
-
   private setToken(token: string): void {
     localStorage.setItem('token', token);
   }

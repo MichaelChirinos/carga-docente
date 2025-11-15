@@ -13,6 +13,11 @@ interface AsignaturaSelect {
   enabled: boolean;
 }
 
+interface EscuelaSelect {
+  idEscuela: number;
+  nombre: string;
+}
+
 @Component({
   selector: 'app-registrar-preferencia',
   standalone: true,
@@ -24,7 +29,8 @@ export class RegistrarPreferenciaComponent implements OnInit {
   preferenciaData: PreferenciaRequest = {
     idDocente: 0,
     idAsignatura: 0,
-    idCicloAcademico: 0
+    idCicloAcademico: 0,
+    idEscuela: 0
   };
 
   preferenciasMultiples: { preferencias: PreferenciaBaseRequest[] } = {
@@ -33,6 +39,7 @@ export class RegistrarPreferenciaComponent implements OnInit {
 
   asignaturas: AsignaturaSelect[] = [];
   ciclosAcademicos: any[] = [];
+  escuelas: EscuelaSelect[] = [];
   isLoading = false;
   message = '';
   isError = false;
@@ -52,7 +59,6 @@ export class RegistrarPreferenciaComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       if (params['id']) {
-        this.modoEdicion = true;
         this.isEditing = true;
         this.idPreferenciaEditar = +params['id'];
         this.cargarPreferenciaParaEditar();
@@ -65,44 +71,45 @@ export class RegistrarPreferenciaComponent implements OnInit {
     return {
       idDocente: this.preferenciaData.idDocente,
       idAsignatura: 0,
-      idCicloAcademico: 0
+      idCicloAcademico: 0,
+      idEscuela: 0
     };
   }
 
-  addPreferencia(): void {
-    this.preferenciasMultiples.preferencias.push(this.createEmptyPreferencia());
-  }
-
-  removePreferencia(index: number): void {
-    if (this.preferenciasMultiples.preferencias.length > 1) {
-      this.preferenciasMultiples.preferencias.splice(index, 1);
-    }
-  }
-
-  toggleModo(): void {
-    this.modoMultiple = !this.modoMultiple;
-    if (this.modoMultiple && this.preferenciasMultiples.preferencias.length === 0) {
-      this.preferenciasMultiples.preferencias = [this.createEmptyPreferencia()];
-    }
+  cargarEscuelas(): void {
+    this.docenteService.obtenerEscuelas().subscribe({
+      next: (response: any) => {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          this.escuelas = response.data;
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando escuelas:', err);
+      }
+    });
   }
 
   cargarPreferenciaParaEditar() {
     if (!this.idPreferenciaEditar) return;
     
-    // NOTA: Necesitarás implementar getPreferenciaById en el servicio
+    this.isLoading = true;
     this.docenteService.getPreferenciaById(this.idPreferenciaEditar).subscribe({
       next: (response: any) => {
         if (response.status === 200 && response.data) {
+          const data = response.data;
           this.preferenciaData = {
-            idDocente: response.data.docente.idDocente,
-            idAsignatura: response.data.asignatura.idAsignatura,
-            idCicloAcademico: response.data.cicloAcademico.idCicloAcademico
+            idDocente: data.docente.idDocente,
+            idAsignatura: data.asignatura.idAsignatura,
+            idCicloAcademico: data.cicloAcademico.idCicloAcademico,
+            idEscuela: data.escuela.idEscuela
           };
         }
+        this.isLoading = false;
       },
       error: (err) => {
         console.error('Error cargando preferencia:', err);
         this.mostrarMensaje('Error al cargar la preferencia', true);
+        this.isLoading = false;
       }
     });
   }
@@ -117,15 +124,14 @@ export class RegistrarPreferenciaComponent implements OnInit {
       return;
     }
 
-    // Obtener el docente actual
     this.docenteService.getDocenteByUsuario(user.idUsuario).subscribe({
       next: (docente: any) => {
         this.preferenciaData.idDocente = docente.idDocente;
         this.preferenciasMultiples.preferencias.forEach(p => p.idDocente = docente.idDocente);
         
-        // Cargar asignaturas y ciclos académicos
         this.cargarAsignaturas();
         this.cargarCiclosAcademicos();
+        this.cargarEscuelas();
       },
       error: (err) => this.manejarError('Error al obtener docente', err)
     });
@@ -154,17 +160,33 @@ export class RegistrarPreferenciaComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 200 && Array.isArray(response.data)) {
           this.ciclosAcademicos = response.data;
-          this.isLoading = false;
         } else {
           this.mostrarMensaje('Error al cargar ciclos académicos', true);
-          this.isLoading = false;
         }
+        this.isLoading = false;
       },
       error: (err) => {
         this.manejarError('Error al cargar ciclos académicos', err);
         this.isLoading = false;
       }
     });
+  }
+
+  addPreferencia(): void {
+    this.preferenciasMultiples.preferencias.push(this.createEmptyPreferencia());
+  }
+
+  removePreferencia(index: number): void {
+    if (this.preferenciasMultiples.preferencias.length > 1) {
+      this.preferenciasMultiples.preferencias.splice(index, 1);
+    }
+  }
+
+  toggleModo(): void {
+    this.modoMultiple = !this.modoMultiple;
+    if (this.modoMultiple && this.preferenciasMultiples.preferencias.length === 0) {
+      this.preferenciasMultiples.preferencias = [this.createEmptyPreferencia()];
+    }
   }
 
   submitForm(form: NgForm): void {
@@ -185,32 +207,29 @@ export class RegistrarPreferenciaComponent implements OnInit {
       return;
     }
 
-    // Validaciones adicionales
-    if (!this.preferenciaData.idAsignatura || !this.preferenciaData.idCicloAcademico) {
-      this.mostrarMensaje('Seleccione una asignatura y un ciclo académico', true);
+    if (!this.preferenciaData.idAsignatura || !this.preferenciaData.idCicloAcademico || !this.preferenciaData.idEscuela) {
+      this.mostrarMensaje('Seleccione todos los campos requeridos', true);
       return;
     }
 
     this.isLoading = true;
 
     if (this.isEditing && this.idPreferenciaEditar) {
-      // Actualizar preferencia existente
       this.docenteService.actualizarPreferencia(
         this.idPreferenciaEditar,
         this.preferenciaData
       ).subscribe({
         next: (response: any) => {
           this.mostrarMensaje(response.message || 'Preferencia actualizada con éxito', false);
-          setTimeout(() => this.router.navigate(['/docente/gestionar-preferencia']), 1500);
+          setTimeout(() => this.router.navigate(['/Docente/gestionar-preferencia']), 1500);
         },
         error: (err) => this.manejarError('Error al actualizar preferencia', err)
       });
     } else {
-      // Registrar nueva preferencia
       this.docenteService.registrarPreferencia(this.preferenciaData).subscribe({
         next: (response: any) => {
           this.mostrarMensaje(response.message || 'Preferencia registrada con éxito', false);
-          setTimeout(() => this.router.navigate(['/docente/gestionar-preferencia']), 1500);
+          setTimeout(() => this.router.navigate(['/Docente/gestionar-preferencia']), 1500);
         },
         error: (err) => this.manejarError('Error al registrar preferencia', err)
       });
@@ -218,9 +237,8 @@ export class RegistrarPreferenciaComponent implements OnInit {
   }
 
   submitFormMultiple(form: NgForm): void {
-    // Validar todas las preferencias
     const preferenciasInvalidas = this.preferenciasMultiples.preferencias.filter(
-      p => !p.idAsignatura || !p.idCicloAcademico
+      p => !p.idAsignatura || !p.idCicloAcademico || !p.idEscuela
     );
 
     if (preferenciasInvalidas.length > 0) {
@@ -229,12 +247,9 @@ export class RegistrarPreferenciaComponent implements OnInit {
     }
 
     this.isLoading = true;
-    
-    // Registrar preferencias una por una
     this.registrarPreferenciasIndividualmente(this.preferenciasMultiples.preferencias);
   }
 
-  // Método para registrar preferencias individualmente
   private registrarPreferenciasIndividualmente(preferencias: PreferenciaBaseRequest[]): void {
     const registros = preferencias.map(preferencia => 
       this.docenteService.registrarPreferencia(preferencia).toPromise()
@@ -251,7 +266,7 @@ export class RegistrarPreferenciaComponent implements OnInit {
         this.mostrarMensaje(`${exitosos} de ${total} preferencias registradas con éxito`, false);
       }
       
-      setTimeout(() => this.router.navigate(['/docente/gestionar-preferencia']), 1500);
+      setTimeout(() => this.router.navigate(['/Docente/gestionar-preferencia']), 1500);
     }).catch(err => {
       this.manejarError('Error al registrar preferencias', err);
     });
@@ -270,13 +285,24 @@ export class RegistrarPreferenciaComponent implements OnInit {
     setTimeout(() => this.message = '', 5000);
   }
 
-  // Helper para obtener nombre del ciclo académico
+  todasPreferenciasCompletas(): boolean {
+    return this.preferenciasMultiples.preferencias.every(preferencia => 
+      !!preferencia.idAsignatura && 
+      !!preferencia.idCicloAcademico && 
+      !!preferencia.idEscuela
+    );
+  }
+
+  getEscuelaNombre(idEscuela: number): string {
+    const escuela = this.escuelas.find(e => e.idEscuela === idEscuela);
+    return escuela ? escuela.nombre : 'Escuela no encontrada';
+  }
+
   getCicloNombre(idCiclo: number): string {
     const ciclo = this.ciclosAcademicos.find(c => c.idCicloAcademico === idCiclo);
     return ciclo ? ciclo.nombre : 'Ciclo no encontrado';
   }
 
-  // Helper para obtener nombre de la asignatura
   getAsignaturaNombre(idAsignatura: number): string {
     const asignatura = this.asignaturas.find(a => a.idAsignatura === idAsignatura);
     return asignatura ? `${asignatura.nombre} (${asignatura.codigo})` : 'Asignatura no encontrada';

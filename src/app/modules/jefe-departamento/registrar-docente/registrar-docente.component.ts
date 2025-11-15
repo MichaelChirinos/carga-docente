@@ -196,7 +196,7 @@ export class RegistrarDocenteComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 200) {
           this.showMessage('Docente actualizado con éxito', false);
-          setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-docentes']), 1500);
+          setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-docentes']), 1500);
         } else {
           this.showMessage(response.message || 'Error al actualizar docente', true);
           this.isLoading = false;
@@ -239,7 +239,7 @@ export class RegistrarDocenteComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 201 || response.status === 200) {
           this.showMessage(response.message || 'Docentes registrados con éxito', false);
-          setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-docentes']), 1500);
+          setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-docentes']), 1500);
         } else {
           this.showMessage(response.message || 'Error al registrar docentes', true);
           this.isLoading = false;

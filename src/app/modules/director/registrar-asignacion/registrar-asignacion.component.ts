@@ -1,3 +1,4 @@
+// registrar-asignacion.component.ts
 import { Component, OnInit } from '@angular/core';
 import { DirectorService } from '../../admin/services/director.service';
 import { FormsModule } from '@angular/forms';
@@ -28,6 +29,8 @@ export class RegistrarAsignacionComponent implements OnInit {
   // Estados
   isLoading = false;
   isLoadingData = false;
+  isLoadingCursos = false;
+  isLoadingCargas = false;
   message = '';
   isError = false;
 
@@ -51,32 +54,87 @@ export class RegistrarAsignacionComponent implements OnInit {
       error: (err) => console.error('Error cargando docentes:', err)
     });
 
-    // Cargar cursos
-    this.directorService.obtenerCursos().subscribe({
-      next: (response) => {
-        this.cursos = response.data || response || [];
-      },
-      error: (err) => console.error('Error cargando cursos:', err)
-    });
-
     // Cargar ciclos académicos
     this.directorService.obtenerCiclosAcademicos().subscribe({
-      next: (response) => {
-        this.ciclosAcademicos = response.data || response || [];
+      next: (response: any) => {
+        const ciclos = response.data || response || [];
+        this.ciclosAcademicos = ciclos;
+        
+        // Seleccionar ciclo activo por defecto si existe
+        const cicloActivo = ciclos.find((ciclo: any) => ciclo.enabled);
+        if (cicloActivo) {
+          this.asignacionData.idCicloAcademico = cicloActivo.idCicloAcademico;
+          this.cargarCursos();
+          this.cargarCargasAcademicas();
+        }
+        
         this.isLoadingData = false;
       },
       error: (err) => {
         console.error('Error cargando ciclos académicos:', err);
+        this.showMessage('Error al cargar ciclos académicos', true);
         this.isLoadingData = false;
       }
     });
+  }
 
-    // Cargar cargas académicas
-    this.directorService.obtenerCargasAcademicas().subscribe({
-      next: (response) => {
-        this.cargasAcademicas = response.data || response || [];
+  onCicloChange(): void {
+    if (this.asignacionData.idCicloAcademico) {
+      this.cargarCursos();
+      this.cargarCargasAcademicas();
+    } else {
+      this.cursos = [];
+      this.cargasAcademicas = [];
+      this.asignacionData.idCurso = 0;
+      this.asignacionData.idCarga = 0;
+    }
+  }
+
+  cargarCursos(): void {
+    if (!this.asignacionData.idCicloAcademico) return;
+
+    this.isLoadingCursos = true;
+    this.cursos = [];
+    this.asignacionData.idCurso = 0;
+
+    this.directorService.obtenerCursosPorCicloAcademico(this.asignacionData.idCicloAcademico).subscribe({
+      next: (response: any) => {
+        this.cursos = response.data || response || [];
+        this.isLoadingCursos = false;
+        
+        if (this.cursos.length === 0) {
+          this.showMessage('No hay cursos disponibles para el ciclo académico seleccionado', false);
+        }
       },
-      error: (err) => console.error('Error cargando cargas académicas:', err)
+      error: (err) => {
+        console.error('Error cargando cursos:', err);
+        this.showMessage('Error al cargar cursos', true);
+        this.isLoadingCursos = false;
+      }
+    });
+  }
+
+  cargarCargasAcademicas(): void {
+    if (!this.asignacionData.idCicloAcademico) return;
+
+    this.isLoadingCargas = true;
+    this.cargasAcademicas = [];
+    this.asignacionData.idCarga = 0;
+
+    this.directorService.obtenerCargasAcademicasPorCiclo(this.asignacionData.idCicloAcademico).subscribe({
+      next: (response: any) => {
+        this.cargasAcademicas = response.data || response || [];
+        this.isLoadingCargas = false;
+        
+        if (this.cargasAcademicas.length === 0) {
+          this.showMessage('No hay cargas académicas disponibles para el ciclo académico seleccionado', false);
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando cargas académicas:', err);
+        this.showMessage('Error al cargar cargas académicas', true);
+        this.isLoadingCargas = false;
+      }
     });
   }
 
@@ -94,11 +152,12 @@ export class RegistrarAsignacionComponent implements OnInit {
       next: (response) => {
         this.showMessage('Asignación registrada exitosamente', false);
         setTimeout(() => {
-          this.router.navigate(['/director/listar-asignaciones']);
+          this.router.navigate(['/Departamento Academico/listar-asignaciones']);
         }, 1500);
       },
       error: (err) => {
-        this.showMessage('Error al registrar asignación: ' + (err.error?.message || ''), true);
+        const errorMessage = err.error?.message || err.error?.data?.[0]?.message || 'Error al registrar asignación';
+        this.showMessage(errorMessage, true);
         this.isLoading = false;
       }
     });
@@ -115,7 +174,7 @@ export class RegistrarAsignacionComponent implements OnInit {
   getCursoInfo(cursoId: number): string {
     const curso = this.cursos.find(c => c.idCurso === cursoId);
     if (!curso) return '';
-    return `${curso.asignatura?.nombre} - ${curso.grupo}`;
+    return `${curso.asignatura?.nombre} - ${curso.grupo || 'Sin grupo'} (${curso.codigo || 'Sin código'})`;
   }
 
   // Método auxiliar para mostrar información del docente
@@ -123,5 +182,19 @@ export class RegistrarAsignacionComponent implements OnInit {
     const docente = this.docentes.find(d => d.idDocente === docenteId);
     if (!docente) return '';
     return `${docente.usuario?.nombre} ${docente.usuario?.apellido} (${docente.codigo})`;
+  }
+
+  // Método auxiliar para mostrar información del ciclo académico
+  getCicloInfo(cicloId: number): string {
+    const ciclo = this.ciclosAcademicos.find(c => c.idCicloAcademico === cicloId);
+    if (!ciclo) return '';
+    return ciclo.nombre;
+  }
+
+  // Método auxiliar para mostrar información de la carga académica
+  getCargaInfo(cargaId: number): string {
+    const carga = this.cargasAcademicas.find(c => c.idCarga === cargaId);
+    if (!carga) return '';
+    return carga.nombre || `Carga ${carga.idCarga}`;
   }
 }

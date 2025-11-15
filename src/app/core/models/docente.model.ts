@@ -36,6 +36,8 @@ export interface Docente {
   tienePermisoExceso: boolean;
   createdAt: string;
   enabled: boolean;
+  codigo: string;     
+
 }
 
 export interface DocenteListResponse {

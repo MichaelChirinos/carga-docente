@@ -3,14 +3,16 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { map } from 'rxjs/operators';
 
+// En role.guard.ts
 export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const expectedRole = Number(route.data['role']); // 👈 Convertir a número
+  const expectedRole = Number(route.data['role']);
 
   return authService.currentUser$.pipe(
     map(user => {
-      const hasRole = user?.idRol === expectedRole; // ✅ Ahora compara número vs número
+      // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
+      const hasRole = user?.rol?.idRol === expectedRole;
       return hasRole || router.createUrlTree(['/login']);
     })
   );

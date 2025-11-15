@@ -71,7 +71,7 @@ export class RegistrarCategoriaComponent implements OnInit {
       error: (err) => {
         this.showMessage('Error al cargar categoría: ' + (err.error?.message || ''), true);
         this.isLoading = false;
-        this.router.navigate(['/jefe-departamento/gestionar-categorias']);
+        this.router.navigate(['/Escuela Profesional/gestionar-categorias']);
       }
     });
   }
@@ -118,7 +118,7 @@ agregarCategoria(): void {
           next: (response: any) => {
             if (response.status === 200) {
               this.showMessage('Categoría actualizada con éxito', false);
-              setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-categorias']), 1500);
+              setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-categorias']), 1500);
             } else {
               this.showMessage(response.message || 'Error al actualizar categoría', true);
             }
@@ -131,7 +131,7 @@ agregarCategoria(): void {
           next: (response: any) => {
             if (response.status === 201) {
               this.showMessage('Categoría registrada con éxito', false);
-              setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-categorias']), 1500);
+              setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-categorias']), 1500);
             } else {
               this.showMessage(response.message || 'Error al registrar categoría', true);
             }
@@ -158,7 +158,7 @@ private guardarMultiplesCategorias() {
       next: (response: any) => {
         if (response.status === 201) {
           this.showMessage('Categorías registradas con éxito', false);
-          setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-categorias']), 1500);
+          setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-categorias']), 1500);
         } else {
           this.showMessage(response.message || 'Error al registrar categorías', true);
         }

@@ -57,8 +57,8 @@ export class GestionarHorariosComponent implements OnInit {
   cargarDatos() {
     this.isLoading = true;
     
-    // Cargar horarios del curso
-    this.directorService.obtenerHorariosCurso(this.idCurso).subscribe({
+    // Cargar horarios del curso usando el nuevo endpoint
+    this.directorService.obtenerHorariosPorCurso(this.idCurso).subscribe({
       next: (response) => {
         this.horarios = response.data || response || [];
       },
@@ -112,25 +112,25 @@ export class GestionarHorariosComponent implements OnInit {
     return date;
   }
 
-  // INSERTAR UN SOLO HORARIO
+  // INSERTAR UN SOLO HORARIO - USANDO EL NUEVO ENDPOINT
   insertarHorarioIndividual() {
     if (!this.validarHorario(this.nuevoHorario)) return;
 
     this.isLoading = true;
-    this.directorService.insertarHorarioCurso(this.idCurso, this.nuevoHorario).subscribe({
+    this.directorService.insertarHorarioPorCurso(this.idCurso, this.nuevoHorario).subscribe({
       next: (response) => {
         this.showMessage('Horario agregado exitosamente', false);
         this.nuevoHorario = this.createEmptyHorario();
         this.cargarDatos();
       },
       error: (err) => {
-        this.showMessage('Error al agregar horario: ' + (err.error?.message || ''), true);
+        this.showMessage('Error al agregar horario: ' + (err.error?.message || err.message || ''), true);
         this.isLoading = false;
       }
     });
   }
 
-  // INSERTAR MÚLTIPLES HORARIOS
+  // INSERTAR MÚLTIPLES HORARIOS - USANDO EL NUEVO ENDPOINT
   agregarHorarioMultiple() {
     this.multiplesHorarios.push(this.createEmptyHorario());
   }
@@ -148,7 +148,7 @@ export class GestionarHorariosComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.directorService.insertarHorariosCurso(this.idCurso, this.multiplesHorarios).subscribe({
+    this.directorService.insertarHorariosPorCurso(this.idCurso, this.multiplesHorarios).subscribe({
       next: (response) => {
         this.showMessage(`${this.multiplesHorarios.length} horarios agregados exitosamente`, false);
         this.multiplesHorarios = [this.createEmptyHorario()];
@@ -156,13 +156,13 @@ export class GestionarHorariosComponent implements OnInit {
         this.cargarDatos();
       },
       error: (err) => {
-        this.showMessage('Error al agregar horarios: ' + (err.error?.message || ''), true);
+        this.showMessage('Error al agregar horarios: ' + (err.error?.message || err.message || ''), true);
         this.isLoading = false;
       }
     });
   }
 
-  // EDITAR HORARIO
+  // EDITAR HORARIO - USANDO EL NUEVO ENDPOINT
   iniciarEdicion(horario: any) {
     this.horarioEditando = { 
       ...horario,
@@ -180,8 +180,8 @@ export class GestionarHorariosComponent implements OnInit {
     if (!this.validarHorario(this.horarioEditando)) return;
 
     this.isLoading = true;
-    this.directorService.actualizarHorarioCurso(
-      this.horarioEditando.idCursoHorario, 
+    this.directorService.actualizarHorario(
+      this.horarioEditando.idHorario, 
       this.horarioEditando
     ).subscribe({
       next: (response) => {
@@ -190,13 +190,13 @@ export class GestionarHorariosComponent implements OnInit {
         this.cargarDatos();
       },
       error: (err) => {
-        this.showMessage('Error al actualizar horario: ' + (err.error?.message || ''), true);
+        this.showMessage('Error al actualizar horario: ' + (err.error?.message || err.message || ''), true);
         this.isLoading = false;
       }
     });
   }
 
-  // ELIMINAR HORARIO
+  // ELIMINAR HORARIO - USANDO EL NUEVO ENDPOINT
   abrirEliminar(horario: any) {
     this.horarioEliminando = horario;
     this.mostrarModalEliminar = true;
@@ -212,14 +212,14 @@ export class GestionarHorariosComponent implements OnInit {
     if (!this.horarioEliminando) return;
 
     this.loadingEliminacion = true;
-    this.directorService.eliminarHorarioCurso(this.horarioEliminando.idCursoHorario).subscribe({
+    this.directorService.eliminarHorario(this.horarioEliminando.idHorario).subscribe({
       next: (response) => {
         this.showMessage('Horario eliminado exitosamente', false);
         this.cerrarModalEliminar();
         this.cargarDatos();
       },
       error: (err) => {
-        this.showMessage('Error al eliminar horario: ' + (err.error?.message || ''), true);
+        this.showMessage('Error al eliminar horario: ' + (err.error?.message || err.message || ''), true);
         this.loadingEliminacion = false;
       }
     });

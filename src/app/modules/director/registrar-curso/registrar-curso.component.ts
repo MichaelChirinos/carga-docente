@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DirectorService } from '../../admin/services/director.service';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CursoRequest, CursoIndividualRequest } from '../../../core/models/curso';
+import { CursoRequest, HorarioRequest } from '../../../core/models/curso';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -15,28 +15,34 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class RegistrarCursoComponent implements OnInit {
   modoMultiple = false;
   cursosData: CursoRequest[] = [this.createEmptyCurso()];
-cursoIndividualData: CursoIndividualRequest = {
-  idAsignatura: 0,
-  idPlanDeEstudio: 0,
-  idEscuela: 0,
-  idCicloAcademico: 0,
-  grupo: '',
-  cursoHorario: [{
-    tipoSesion: 'TEORIA',
-    diaSemana: 'lunes',
-    horaInicio: '08:00:00',
-    horaFin: '10:00:00',
-    idAula: 0, // CAMBIADO: de 'aula' a 'idAula'
-    duracionHoras: 2
-  }]
-};
+  
+  cursoIndividualData: CursoRequest = {
+    idAsignatura: 0,
+    planDeEstudios: [],
+    idEscuela: 0,
+    idCicloAcademico: 0,
+    ciclo: 1, // Cambiado a 1 por defecto
+    grupo: '',
+    horarios: [{
+      tipoSesion: 'TEORIA',
+      diaSemana: 'lunes',
+      horaInicio: '08:00:00',
+      horaFin: '10:00:00',
+      duracionHoras: 2
+    }]
+  };
+
   asignaturas: any[] = [];
   planesEstudio: any[] = [];
   escuelas: any[] = [];
   ciclosAcademicos: any[] = [];
-  aulas: any[] = []; // NUEVO: Lista de aulas
-  tiposSesion = ['TEORIA', 'LABORATORIO']; // CORREGIDO
+  aulas: any[] = [];
+  tiposSesion = ['TEORIA', 'LABORATORIO'];
   diasSemana = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+  
+  // Variables para planes de estudio
+  planEstudioSeleccionadoIndividual: string = '';
+planEstudioSeleccionadoMultiple: string[] = [];
   
   isEditing = false;
   cursoId?: number;
@@ -45,117 +51,166 @@ cursoIndividualData: CursoIndividualRequest = {
   isError = false;
   formSubmitted = false;
 
+  // Array para ciclos del 1 al 10
+  ciclos = Array.from({length: 10}, (_, i) => i + 1);
+
   constructor(
     private directorService: DirectorService,
     private router: Router,
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit() {
-    const id = this.route.snapshot.params['id'];
-    if (id) {
-      this.isEditing = true;
-      this.cursoId = +id;
-      this.cargarCurso(this.cursoId);
-    }
-    this.cargarDatos();
+ngOnInit() {
+  const id = this.route.snapshot.params['id'];
+  if (id) {
+    this.isEditing = true;
+    this.cursoId = +id;
+    this.cargarCurso(this.cursoId);
+  }
+  this.cargarDatos();
+  
+  // Inicializar el array para modo múltiple
+  this.planEstudioSeleccionadoMultiple = [''];
+}
+
+  createEmptyCurso(): CursoRequest {
+    return {
+      idAsignatura: 0,
+      planDeEstudios: [],
+      idEscuela: 0,
+      idCicloAcademico: 0,
+      ciclo: 1, // Cambiado a 1 por defecto
+      grupo: '',
+      horarios: [{
+        tipoSesion: 'TEORIA',
+        diaSemana: 'lunes',
+        horaInicio: '08:00:00',
+        horaFin: '10:00:00',
+        duracionHoras: 2
+      }]
+    };
   }
 
-createEmptyCurso(): CursoRequest {
-  return {
-    idAsignatura: 0,
-    idPlanDeEstudio: 0,
-    idEscuela: 0,
-    idCicloAcademico: 0,
-    grupo: '',
-    cursoHorario: [{
+  createEmptyHorario(): HorarioRequest {
+    return {
       tipoSesion: 'TEORIA',
       diaSemana: 'lunes',
       horaInicio: '08:00:00',
       horaFin: '10:00:00',
-      idAula: 0, // CAMBIADO: de 'aula' a 'idAula'
       duracionHoras: 2
-    }]
-  };
-}
-
- createEmptyHorario() {
-  return {
-    tipoSesion: 'TEORIA',
-    diaSemana: 'lunes',
-    horaInicio: '08:00:00',
-    horaFin: '10:00:00',
-    idAula: 0, // CAMBIADO: de 'aula' a 'idAula'
-    duracionHoras: 2
-  };
-}
-
-  addCurso() {
-    this.cursosData.push(this.createEmptyCurso());
+    };
   }
 
+addCurso() {
+  this.cursosData.push(this.createEmptyCurso());
+  this.planEstudioSeleccionadoMultiple.push(''); // Cambiado de null a ''
+}
   removeCurso(index: number) {
     if (this.cursosData.length > 1) {
       this.cursosData.splice(index, 1);
+      this.planEstudioSeleccionadoMultiple.splice(index, 1);
     }
   }
 
   addHorario(cursoIndex: number) {
-    this.cursosData[cursoIndex].cursoHorario.push(this.createEmptyHorario());
+    this.cursosData[cursoIndex].horarios.push(this.createEmptyHorario());
   }
 
   addHorarioIndividual() {
-    this.cursoIndividualData.cursoHorario.push(this.createEmptyHorario());
+    this.cursoIndividualData.horarios.push(this.createEmptyHorario());
   }
 
   removeHorario(cursoIndex: number, horarioIndex: number) {
-    if (this.cursosData[cursoIndex].cursoHorario.length > 1) {
-      this.cursosData[cursoIndex].cursoHorario.splice(horarioIndex, 1);
+    if (this.cursosData[cursoIndex].horarios.length > 1) {
+      this.cursosData[cursoIndex].horarios.splice(horarioIndex, 1);
     }
   }
 
   removeHorarioIndividual(horarioIndex: number) {
-    if (this.cursoIndividualData.cursoHorario.length > 1) {
-      this.cursoIndividualData.cursoHorario.splice(horarioIndex, 1);
+    if (this.cursoIndividualData.horarios.length > 1) {
+      this.cursoIndividualData.horarios.splice(horarioIndex, 1);
     }
   }
 
-  toggleModo() {
-    this.modoMultiple = !this.modoMultiple;
-    if (this.modoMultiple && this.cursosData.length === 0) {
-      this.cursosData = [this.createEmptyCurso()];
+toggleModo() {
+  this.modoMultiple = !this.modoMultiple;
+  if (this.modoMultiple && this.cursosData.length === 0) {
+    this.cursosData = [this.createEmptyCurso()];
+    this.planEstudioSeleccionadoMultiple = ['']; // Cambiado de null a ''
+  }
+}
+
+  // Métodos para planes de estudio
+agregarPlanDesdeSelect(): void {
+  if (this.planEstudioSeleccionadoIndividual) {
+    const nombrePlan = this.planEstudioSeleccionadoIndividual;
+    if (!this.cursoIndividualData.planDeEstudios.includes(nombrePlan)) {
+      this.cursoIndividualData.planDeEstudios.push(nombrePlan);
+    }
+    this.planEstudioSeleccionadoIndividual = '';
+  }
+}
+agregarPlanDesdeSelectMultiple(cursoIndex: number): void {
+  if (this.planEstudioSeleccionadoMultiple[cursoIndex]) {
+    const nombrePlan = this.planEstudioSeleccionadoMultiple[cursoIndex];
+    if (!this.cursosData[cursoIndex].planDeEstudios.includes(nombrePlan)) {
+      this.cursosData[cursoIndex].planDeEstudios.push(nombrePlan);
+    }
+    this.planEstudioSeleccionadoMultiple[cursoIndex] = '';
+  }
+}
+
+  agregarPlanDeEstudio(plan: string, index?: number): void {
+    if (plan && plan.trim()) {
+      if (this.modoMultiple && index !== undefined) {
+        if (!this.cursosData[index].planDeEstudios.includes(plan)) {
+          this.cursosData[index].planDeEstudios.push(plan);
+        }
+      } else {
+        if (!this.cursoIndividualData.planDeEstudios.includes(plan)) {
+          this.cursoIndividualData.planDeEstudios.push(plan);
+        }
+      }
+    }
+  }
+
+  removerPlanDeEstudio(planIndex: number, cursoIndex?: number): void {
+    if (this.modoMultiple && cursoIndex !== undefined) {
+      this.cursosData[cursoIndex].planDeEstudios.splice(planIndex, 1);
+    } else {
+      this.cursoIndividualData.planDeEstudios.splice(planIndex, 1);
     }
   }
 
   cargarCurso(id: number): void {
-  this.isLoading = true;
-  this.directorService.obtenerCursoById(id).subscribe({
-    next: (response: any) => {
-      const curso = response.data || response;
-      this.cursoIndividualData = {
-        idAsignatura: curso.asignatura.idAsignatura,
-        idPlanDeEstudio: curso.planDeEstudio.idPlanDeEstudio,
-        idEscuela: curso.escuela.idEscuela,
-        idCicloAcademico: curso.cicloAcademico.idCicloAcademico,
-        grupo: curso.grupo,
-        cursoHorario: curso.cursoHorario.map((horario: any) => ({
-          tipoSesion: horario.tipoSesion,
-          diaSemana: horario.diaSemana,
-          horaInicio: horario.horaInicio,
-          horaFin: horario.horaFin,
-          idAula: horario.aula?.idAula || 0, // IMPORTANTE: usar idAula del aula
-          duracionHoras: horario.duracionHoras
-        }))
-      };
-      this.isLoading = false;
-    },
-    error: (err) => {
-      this.showMessage('Error al cargar curso', true);
-      this.isLoading = false;
-      this.router.navigate(['/director/gestionar-cursos']);
-    }
-  });
-}
+    this.isLoading = true;
+    this.directorService.obtenerCursoById(id).subscribe({
+      next: (response: any) => {
+        const curso = response.data || response;
+        this.cursoIndividualData = {
+          idAsignatura: curso.asignatura.idAsignatura,
+          planDeEstudios: curso.planDeEstudios || [],
+          idEscuela: curso.escuela.idEscuela,
+          idCicloAcademico: curso.cicloAcademico.idCicloAcademico,
+          ciclo: curso.ciclo,
+          grupo: curso.grupo,
+          horarios: curso.horarios.map((horario: any) => ({
+            tipoSesion: horario.tipoSesion,
+            diaSemana: horario.diaSemana,
+            horaInicio: horario.horaInicio,
+            horaFin: horario.horaFin,
+            duracionHoras: horario.duracionHoras
+          }))
+        };
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.showMessage('Error al cargar curso', true);
+        this.isLoading = false;
+        this.router.navigate(['/Departamento Academico/gestionar-cursos']);
+      }
+    });
+  }
 
   cargarDatos() {
     this.isLoading = true;
@@ -180,7 +235,6 @@ createEmptyCurso(): CursoRequest {
       error: (err) => console.error('Error cargando ciclos académicos:', err)
     });
 
-    // NUEVO: Cargar aulas
     this.directorService.obtenerAulas().subscribe({
       next: (res) => {
         this.aulas = res.data || [];
@@ -193,7 +247,7 @@ createEmptyCurso(): CursoRequest {
     });
   }
 
-  calcularDuracion(horario: any) {
+  calcularDuracion(horario: HorarioRequest) {
     if (horario.horaInicio && horario.horaFin) {
       const inicio = this.parseTime(horario.horaInicio);
       const fin = this.parseTime(horario.horaFin);
@@ -210,7 +264,6 @@ createEmptyCurso(): CursoRequest {
   }
 
   private parseTime(timeString: string): Date {
-    // Asegurar formato HH:MM:SS
     let timeParts = timeString.split(':');
     if (timeParts.length === 2) {
       timeString = timeString + ':00';
@@ -219,22 +272,6 @@ createEmptyCurso(): CursoRequest {
     const date = new Date();
     date.setHours(hours, minutes, 0, 0);
     return date;
-  }
-
-  // NUEVO: Filtrar aulas por tipo de sesión
-  filtrarAulasPorTipo(tipoSesion: string): any[] {
-    if (tipoSesion === 'TEORIA') {
-      return this.aulas.filter(aula => aula.tipo === 'TEORIA');
-    } else if (tipoSesion === 'LABORATORIO') {
-      return this.aulas.filter(aula => aula.tipo === 'LABORATORIO');
-    }
-    return this.aulas;
-  }
-
-  // NUEVO: Obtener nombre del aula
-  getNombreAula(idAula: number): string {
-    const aula = this.aulas.find(a => a.idAula === idAula);
-    return aula ? `${aula.nombre} (${aula.tipo})` : 'Aula no encontrada';
   }
 
   submitForm(form: NgForm): void {
@@ -251,22 +288,25 @@ createEmptyCurso(): CursoRequest {
 
   submitFormIndividual(form: NgForm): void {
     // Validar datos básicos del curso
-    if (!this.cursoIndividualData.idAsignatura || !this.cursoIndividualData.idPlanDeEstudio || 
-        !this.cursoIndividualData.idEscuela || !this.cursoIndividualData.idCicloAcademico || 
+    if (!this.cursoIndividualData.idAsignatura || 
+        this.cursoIndividualData.planDeEstudios.length === 0 ||
+        !this.cursoIndividualData.idEscuela || 
+        !this.cursoIndividualData.idCicloAcademico ||
+        !this.cursoIndividualData.ciclo ||
         !this.cursoIndividualData.grupo) {
       this.showMessage('Por favor complete todos los campos requeridos del curso', true);
       return;
     }
 
     // Validar horarios
-    if (this.cursoIndividualData.cursoHorario.length === 0) {
+    if (this.cursoIndividualData.horarios.length === 0) {
       this.showMessage('Debe agregar al menos un horario', true);
       return;
     }
 
-    for (const horario of this.cursoIndividualData.cursoHorario) {
+    for (const horario of this.cursoIndividualData.horarios) {
       if (!horario.tipoSesion || !horario.diaSemana || !horario.horaInicio || 
-          !horario.horaFin || !horario.idAula || horario.duracionHoras <= 0) {
+          !horario.horaFin || horario.duracionHoras <= 0) {
         this.showMessage('Todos los horarios deben estar completos y con duración válida', true);
         return;
       }
@@ -278,7 +318,7 @@ createEmptyCurso(): CursoRequest {
       this.directorService.actualizarCurso(this.cursoId, this.cursoIndividualData).subscribe({
         next: (response) => {
           this.showMessage('Curso actualizado con éxito', false);
-          setTimeout(() => this.router.navigate(['/director/gestionar-cursos']), 1500);
+          setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-cursos']), 1500);
         },
         error: (err) => this.handleError(err)
       });
@@ -286,7 +326,7 @@ createEmptyCurso(): CursoRequest {
       this.directorService.registrarCurso(this.cursoIndividualData).subscribe({
         next: (response) => {
           this.showMessage('Curso registrado con éxito', false);
-          setTimeout(() => this.router.navigate(['/director/gestionar-cursos']), 1500);
+          setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-cursos']), 1500);
         },
         error: (err) => this.handleError(err)
       });
@@ -296,15 +336,16 @@ createEmptyCurso(): CursoRequest {
   submitFormMultiple(form: NgForm): void {
     // Validar todos los cursos
     for (const curso of this.cursosData) {
-      if (!curso.idAsignatura || !curso.idPlanDeEstudio || !curso.idEscuela || 
-          !curso.idCicloAcademico || !curso.grupo || curso.cursoHorario.length === 0) {
+      if (!curso.idAsignatura || curso.planDeEstudios.length === 0 ||
+          !curso.idEscuela || !curso.idCicloAcademico || !curso.ciclo ||
+          !curso.grupo || curso.horarios.length === 0) {
         this.showMessage('Todos los cursos deben tener los datos básicos completos', true);
         return;
       }
 
-      for (const horario of curso.cursoHorario) {
+      for (const horario of curso.horarios) {
         if (!horario.tipoSesion || !horario.diaSemana || !horario.horaInicio || 
-            !horario.horaFin || !horario.idAula || horario.duracionHoras <= 0) {
+            !horario.horaFin || horario.duracionHoras <= 0) {
           this.showMessage('Todos los horarios deben estar completos y con duración válida', true);
           return;
         }
@@ -315,7 +356,7 @@ createEmptyCurso(): CursoRequest {
     this.directorService.registrarCursosMultiples(this.cursosData).subscribe({
       next: (response) => {
         this.showMessage(`${this.cursosData.length} cursos registrados con éxito`, false);
-        setTimeout(() => this.router.navigate(['/director/gestionar-cursos']), 1500);
+        setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-cursos']), 1500);
       },
       error: (err) => this.handleError(err)
     });

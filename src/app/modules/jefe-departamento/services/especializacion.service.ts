@@ -20,7 +20,7 @@ export class EspecializacionService {
 
   // Obtener todas las especializaciones
   obtenerEspecializaciones(): Observable<EspecializacionListResponse> {
-    return this.http.get<EspecializacionListResponse>(`${this.apiUrl}/listar`);
+    return this.http.get<EspecializacionListResponse>(`${environment.apiUrl}/docente/listar-con-especializaciones`);
   }
 
   // Obtener docentes - usando tu modelo existente
@@ -33,7 +33,7 @@ export class EspecializacionService {
     return this.http.get(`${environment.apiUrl}/asignatura/listar`);
   }
 obtenerEspecializacionesPorDocente(idDocente: number): Observable<any> {
-  return this.http.get(`${this.apiUrl}/listar/${idDocente}`);
+  return this.http.get(`${this.apiUrl}/listar-por-docente/${idDocente}`);
 }
 // Obtener especialización por ID
 obtenerEspecializacionPorId(idEspecializacion: number): Observable<any> {

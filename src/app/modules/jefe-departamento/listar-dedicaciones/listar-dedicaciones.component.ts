@@ -134,7 +134,7 @@ export class ListarDedicacionesComponent implements OnInit {
   }
 
   editarDedicacion(id: number): void {
-    this.router.navigate(['/jefe-departamento/editar-dedicacion', id]);
+    this.router.navigate(['/Escuela Profesional/editar-dedicacion', id]);
   }
 
   // Helper function para la tabla

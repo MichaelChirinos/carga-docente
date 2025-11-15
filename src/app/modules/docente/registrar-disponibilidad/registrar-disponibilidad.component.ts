@@ -55,13 +55,31 @@ export class RegistrarDisponibilidadComponent implements OnInit {
     return this.disponibilidadForm.get('disponibilidades') as FormArray;
   }
 
-  agregarDisponibilidad(): void {
-    this.disponibilidadesArray.push(this.fb.group({
-      diaSemana: ['LUNES', Validators.required],
-      horaInicio: ['08:00', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]],
-      horaFin: ['10:00', [Validators.required, Validators.pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)]]
-    }));
+agregarDisponibilidad(): void {
+  this.disponibilidadesArray.push(this.fb.group({
+    diaSemana: ['LUNES', Validators.required],
+    horaInicio: ['08:00', [
+      Validators.required, 
+      Validators.pattern(/^(0[0-9]|1[0-9]|2[0-3]):00$/),
+      this.validarHoraEnPunto.bind(this)
+    ]],
+    horaFin: ['10:00', [
+      Validators.required, 
+      Validators.pattern(/^(0[0-9]|1[0-9]|2[0-3]):00$/),
+      this.validarHoraEnPunto.bind(this)
+    ]]
+  }));
+}
+
+validarHoraEnPunto(control: any) {
+  if (!control.value) return null;
+  
+  const horaRegex = /^(0[0-9]|1[0-9]|2[0-3]):00$/;
+  if (!horaRegex.test(control.value)) {
+    return { horaNoEnPunto: true };
   }
+  return null;
+}
 
   eliminarDisponibilidad(index: number): void {
     if (this.disponibilidadesArray.length > 1) {
@@ -69,30 +87,43 @@ export class RegistrarDisponibilidadComponent implements OnInit {
     }
   }
 
-  cargarDatosEdicion(): void {
-    this.isLoading = true;
-    this.docenteService.getDisponibilidadById(this.idDisponibilidadEditar!).subscribe({
-      next: (response) => {
-        // Limpiar y cargar solo una disponibilidad para edición
-        this.disponibilidadesArray.clear();
-        this.disponibilidadesArray.push(this.fb.group({
-          diaSemana: [response.data.diaSemana, Validators.required],
-          horaInicio: [response.data.horaInicio.substring(0, 5), Validators.required],
-          horaFin: [response.data.horaFin.substring(0, 5), Validators.required]
-        }));
-        
-        this.disponibilidadForm.patchValue({
-          idCicloAcademico: response.data.cicloAcademico.idCicloAcademico
-        });
-        
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.showMessage('Error al cargar datos para edición: ' + (err.error?.message || ''), true);
-        this.isLoading = false;
-      }
-    });
-  }
+cargarDatosEdicion(): void {
+  this.isLoading = true;
+  this.docenteService.getDisponibilidadById(this.idDisponibilidadEditar!).subscribe({
+    next: (response) => {
+      // Limpiar y cargar solo una disponibilidad para edición
+      this.disponibilidadesArray.clear();
+      
+      // Extraer solo HH:MM del formato HH:MM:SS
+      const horaInicio = response.data.horaInicio.substring(0, 5);
+      const horaFin = response.data.horaFin.substring(0, 5);
+      
+      this.disponibilidadesArray.push(this.fb.group({
+        diaSemana: [response.data.diaSemana, Validators.required],
+        horaInicio: [horaInicio, [
+          Validators.required, 
+          Validators.pattern(/^(0[0-9]|1[0-9]|2[0-3]):00$/),
+          this.validarHoraEnPunto.bind(this)
+        ]],
+        horaFin: [horaFin, [
+          Validators.required, 
+          Validators.pattern(/^(0[0-9]|1[0-9]|2[0-3]):00$/),
+          this.validarHoraEnPunto.bind(this)
+        ]]
+      }));
+      
+      this.disponibilidadForm.patchValue({
+        idCicloAcademico: response.data.cicloAcademico.idCicloAcademico
+      });
+      
+      this.isLoading = false;
+    },
+    error: (err) => {
+      this.showMessage('Error al cargar datos para edición: ' + (err.error?.message || ''), true);
+      this.isLoading = false;
+    }
+  });
+}
 
   obtenerDocenteId(): void {
     const usuario = this.authService.getCurrentUser();
@@ -141,27 +172,46 @@ export class RegistrarDisponibilidadComponent implements OnInit {
     }
     return true;
   }
-
-  onSubmit(): void {
-    if (this.disponibilidadForm.invalid || !this.idDocente) {
-      this.showMessage('Complete todos los campos requeridos', true);
-      return;
-    }
-
-    if (!this.validarHorarios()) {
-      return;
-    }
-
-    const formValue = this.disponibilidadForm.value;
+validarHorasEnPunto(): boolean {
+  for (let i = 0; i < this.disponibilidadesArray.length; i++) {
+    const disp = this.disponibilidadesArray.at(i);
+    const horaInicio = disp.get('horaInicio');
+    const horaFin = disp.get('horaFin');
     
-    const requests: DisponibilidadRequest[] = this.disponibilidadesArray.value.map((disp: any) => ({
-      idDocente: this.idDocente,
-      idCicloAcademico: formValue.idCicloAcademico,
-      diaSemana: disp.diaSemana,
-      horaInicio: disp.horaInicio,
-      horaFin: disp.horaFin
-    }));
+    if (horaInicio?.errors?.['horaNoEnPunto'] || horaFin?.errors?.['horaNoEnPunto'] || 
+        horaInicio?.errors?.['pattern'] || horaFin?.errors?.['pattern']) {
+      return false;
+    }
+  }
+  return true;
+}
+  onSubmit(): void {
+      if (this.disponibilidadForm.invalid || !this.idDocente) {
+    this.showMessage('Complete todos los campos requeridos', true);
+    return;
+  }
 
+  if (!this.validarHorarios()) {
+    return;
+  }
+
+
+  
+  // Validar que todas las horas estén en punto
+  if (!this.validarHorasEnPunto()) {
+    this.showMessage('Todas las horas deben ser en punto (formato HH:00)', true);
+    return;
+  }
+
+  const formValue = this.disponibilidadForm.value;
+  
+  const requests: DisponibilidadRequest[] = this.disponibilidadesArray.value.map((disp: any) => ({
+    idDocente: this.idDocente,
+    idCicloAcademico: formValue.idCicloAcademico,
+    diaSemana: disp.diaSemana,
+    horaInicio: `${disp.horaInicio}:00`, // Agregar :00 para formato HH:00:00
+    horaFin: `${disp.horaFin}:00`       // Agregar :00 para formato HH:00:00
+  }));
     this.isLoading = true;
 
     if (this.isEditing && this.idDisponibilidadEditar) {
@@ -173,7 +223,7 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         next: (response) => {
           this.showMessage(response.message || 'Disponibilidad actualizada correctamente', false);
           setTimeout(() => {
-            this.router.navigate(['/docente/gestionar-disponibilidad']);
+            this.router.navigate(['/Docente/gestionar-disponibilidad']);
           }, 1500);
         },
         error: (err) => {
@@ -205,7 +255,7 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         }
         
         setTimeout(() => {
-          this.router.navigate(['/docente/gestionar-disponibilidad']);
+          this.router.navigate(['/Docente/gestionar-disponibilidad']);
         }, 2000);
       })
       .catch(err => {

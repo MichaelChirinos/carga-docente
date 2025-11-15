@@ -1,4 +1,3 @@
-// director/components/navbar/navbar.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../core/services/auth.service';

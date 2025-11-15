@@ -14,6 +14,10 @@ import { ListarCursosComponent } from './listar-cursos/listar-cursos.component';
 import { ListarAsignacionesComponent } from './listar-asignaciones-docente/listar-asignaciones-docente.component';
 import { GestionarHorariosComponent } from './gestionar-horarios/gestionar-horarios.component';
 import { RegistrarAsignacionComponent } from './registrar-asignacion/registrar-asignacion.component';
+import { ListarAsignacionesCargaComponent } from './listar-asignaciones-carga/listar-asignaciones-carga.component';
+import { ListarAsignacionesEscuelaComponent } from './listar-asignaciones-escuelas/listar-asignaciones-escuelas.component';
+import { GestionarCargasComponent } from './gestionar-cargas/gestionar-cargas.component';
+import { GestionarReportesComponent } from './gestionar-reportes/gestionar-reportes.component';
 
 export const DIRECTOR_ROUTES: Routes = [
   { 
@@ -32,6 +36,12 @@ export const DIRECTOR_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { role: 2 }
   },
+  {
+  path: 'asignaciones/carga',
+  component: ListarAsignacionesCargaComponent, // El nuevo componente
+  canActivate: [roleGuard],
+  data: { role: 2 }
+},
   {
   path: 'gestionar-ciclos-academicos',
   component: ListarCiclosAcademicosComponent,
@@ -119,13 +129,31 @@ export const DIRECTOR_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { role: 2 }
   },
-
+// director.routes.ts - agregar esta ruta:
+{
+  path: 'asignaciones/escuela',
+  component: ListarAsignacionesEscuelaComponent,
+  canActivate: [roleGuard],
+  data: { role: 2 }
+},
  {
         path: 'listar-asignaciones',
         component: ListarAsignacionesComponent,
         canActivate: [roleGuard],
         data: { role: 2 }
+      },
+      { path: 'gestionar-cargas', 
+        component: GestionarCargasComponent,
+      canActivate: [roleGuard],
+        data: { role: 2 } 
+      },
+      {
+        path: 'generar-reportes',
+        component: GestionarReportesComponent,
+        canActivate: [roleGuard],
+        data: { role: 2 }
       }
+
     ]
   }
 ];

@@ -32,42 +32,49 @@ export class LoginComponent {
     this.router.navigate(['/']);
   }
 
-  onLogin() {
-    this.accessDenied = false;
-    this.errorMessage = null;
+// En login.component.ts
+onLogin() {
+  this.accessDenied = false;
+  this.errorMessage = null;
 
-    this.authService.login(this.email, this.password).subscribe({
-      next: (user) => {
-        if (this.requiredRole && !this.checkRoleAccess(user)) {
-          this.errorMessage = 'No tienes acceso a este módulo';
-          this.accessDenied = true;
-          this.authService.logout();
-          return;
-        }
-        // Redirigir después de login exitoso
-        const defaultRoute = this.authService.getRolePath(user.idRol);
-        this.router.navigateByUrl(defaultRoute);
-      },
-      error: (err) => {
-        if (err.status === 403) {
-          this.accessDenied = true;
-          this.errorMessage = 'Acceso denegado';
-        } else {
-          this.errorMessage = 'Credenciales incorrectas';
-          this.accessDenied = true;
-        }
+  console.log('🔄 Iniciando login con:', this.email);
+  
+  this.authService.login(this.email, this.password).subscribe({
+    next: (response) => {
+      console.log('✅ Login exitoso - Respuesta completa:', response);
+      
+      const user = response.data.usuario;
+      
+      // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
+      if (this.requiredRole && !this.checkRoleAccess(user)) {
+        this.errorMessage = 'No tienes acceso a este módulo';
+        this.accessDenied = true;
+        this.authService.logout();
+        return;
       }
-    });
-  }
+      
+      // ✅ Usar user.rol.idRol para la redirección
+      const defaultRoute = this.authService.getRolePath(user.rol.idRol);
+      console.log('🔄 Redirigiendo a:', defaultRoute);
+      this.router.navigateByUrl(defaultRoute);
+    },
+    error: (err) => {
+      console.error('❌ Error en login:', err);
+      // ... manejo de errores igual
+    }
+  });
+}
 
-  private checkRoleAccess(user: any): boolean {
-    const roleMap: { [key: string]: number } = {
-      'admin': 1,
-      'director': 2,
-      'docente': 3,
-      'jefe-departamento': 4, // Nuevo: rol jefe de departamento
-      'logistica': 5          // Nuevo: rol logística
-    };
-    return user?.idRol === roleMap[this.requiredRole as string];
-  }
+private checkRoleAccess(user: any): boolean {
+  const roleMap: { [key: string]: number } = {
+    'Administrador': 1,
+    'Departamento Academico': 2,
+    'Docente': 3,
+    'Escuela Profesional': 4, 
+    'Logistica': 5 
+  };
+  
+  // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
+  return user?.rol?.idRol === roleMap[this.requiredRole as string];
+}
 }

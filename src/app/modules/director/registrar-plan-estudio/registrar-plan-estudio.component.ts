@@ -51,7 +51,7 @@ export class RegistrarPlanEstudioComponent {
     this.directorService.registrarPlanesMultiples(this.planesLista).subscribe({
       next: (response: PlanEstudioResponse) => {
         this.showMessage(response.message || 'Planes registrados con éxito', false);
-        setTimeout(() => this.router.navigate(['/director/gestionar-planes-estudio']), 1500);
+        setTimeout(() => this.router.navigate(['/Departamento Academico/gestionar-planes-estudio']), 1500);
       },
       error: (err) => {
         this.showMessage('Error: ' + (err.error?.message || 'No se pudieron registrar los planes'), true);

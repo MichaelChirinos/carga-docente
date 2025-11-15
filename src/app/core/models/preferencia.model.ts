@@ -1,23 +1,16 @@
+
 export interface PreferenciaBaseRequest {
   idDocente: number;
   idAsignatura: number;
-  idCicloAcademico: number; // CAMBIADO: idCargaElectiva → idCicloAcademico
+  idCicloAcademico: number;
+  idEscuela: number; 
 }
 
 export interface PreferenciaRequest extends PreferenciaBaseRequest {
-  idDocente: number;
-  idAsignatura: number;
-  idCicloAcademico: number; // CAMBIADO
 }
 
 export interface PreferenciaMultipleRequest {
   preferencias: PreferenciaBaseRequest[];
-}
-
-export interface PreferenciaMultipleResponse {
-  status: number;
-  message: string;
-  data: PreferenciaResponse[];
 }
 
 export interface PreferenciaResponse {
@@ -33,42 +26,31 @@ export interface PreferenciaResponse {
   asignatura: {
     idAsignatura: number;
     nombre: string;
-    codigo?: string; // Agregar esta propiedad opcional
+    codigo?: string;
   };
   cicloAcademico: {
     idCicloAcademico: number;
     nombre: string;
     enabled?: boolean;
   };
+  escuela: { 
+    idEscuela: number;
+    nombre: string;
+  };
   enabled: boolean;
 }
+
 export interface PreferenciaListResponse {
   status: number;
   message: string;
   data: PreferenciaResponse[];
 }
 
-export interface CicloAcademicoListResponse {
+export interface PreferenciaMultipleResponse {
   status: number;
   message: string;
-  data: {
-    idCicloAcademico: number;
-    nombre: string;
-    enabled: boolean;
-  }[];
+  data: PreferenciaResponse[];
 }
-
-export interface AsignaturaListResponse {
-  status: number;
-  message: string;
-  data: {
-    idAsignatura: number;
-    codigo: string;
-    nombre: string;
-    enabled: boolean;
-  }[];
-}
-// Agrega esto a preferencia.model.ts
 
 export interface PreferenciaDocenteResponse {
   idDocente: number;
@@ -93,4 +75,63 @@ export interface PreferenciasPorDocenteResponse {
   status: number;
   message: string;
   data: PreferenciaDocenteResponse[];
+}
+
+export interface CicloAcademicoListResponse {
+  status: number;
+  message: string;
+  data: {
+    idCicloAcademico: number;
+    nombre: string;
+    enabled: boolean;
+  }[];
+}
+
+export interface AsignaturaListResponse {
+  status: number;
+  message: string;
+  data: {
+    idAsignatura: number;
+    codigo: string;
+    nombre: string;
+    enabled: boolean;
+    idEscuela: number; 
+  }[];
+}
+
+export interface EscuelaListResponse {
+  status: number;
+  message: string;
+  data: {
+    idEscuela: number;
+    nombre: string;
+    enabled: boolean;
+  }[];
+}
+
+export interface AsignaturaSelect {
+  idAsignatura: number;
+  codigo: string;
+  nombre: string;
+  enabled: boolean;
+  idEscuela: number;
+}
+
+export interface EscuelaSelect {
+  idEscuela: number;
+  nombre: string;
+  enabled: boolean;
+}
+
+export interface PreferenciaFormData {
+  idDocente: number;
+  idAsignatura: number;
+  idCicloAcademico: number;
+  idEscuela: number;
+}
+
+export interface PreferenciaErrorResponse {
+  status: number;
+  message: string;
+  error?: string;
 }

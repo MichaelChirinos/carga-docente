@@ -27,7 +27,7 @@
             {{ modoMultiple ? 'Modo Individual' : 'Modo Múltiple' }}
           </button>
           <a 
-            routerLink="/director/gestionar-cursos" 
+            routerLink="/Departamento Academico/gestionar-cursos" 
             class="text-gray-500 hover:text-gray-700 transition"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -57,21 +57,47 @@
             </select>
           </div>
 
-          <!-- Plan de Estudio -->
+          <!-- Plan de Estudios -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Plan de Estudio *</label>
-            <select
-              [(ngModel)]="cursoIndividualData.idPlanDeEstudio"
-              name="idPlanDeEstudio"
-              required
-              class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-              [disabled]="isLoading"
-            >
-              <option value="0" disabled selected>Seleccione un plan</option>
-              <option *ngFor="let p of planesEstudio" [value]="p.idPlanDeEstudio">
-                {{ p.nombre }}
-              </option>
-            </select>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plan de Estudios *</label>
+            <div class="space-y-2">
+              <div class="flex space-x-2">
+                <select
+                  [(ngModel)]="planEstudioSeleccionadoIndividual"
+                  name="planEstudioSelectIndividual"
+                  class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+                >
+                  <option [ngValue]="null">Seleccionar plan de la lista</option>
+                  <option *ngFor="let plan of planesEstudio" [ngValue]="plan.nombre">
+                    {{ plan.nombre }}
+                  </option>
+                </select>
+                <button
+                  type="button"
+                  (click)="agregarPlanDesdeSelect()"
+                  [disabled]="!planEstudioSeleccionadoIndividual"
+                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  Agregar
+                </button>
+              </div>
+
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span 
+                  *ngFor="let plan of cursoIndividualData.planDeEstudios; let planIndex = index"
+                  class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                >
+                  {{ plan }}
+                  <button
+                    type="button"
+                    (click)="removerPlanDeEstudio(planIndex)"
+                    class="ml-1 text-blue-600 hover:text-blue-800"
+                  >
+                    ×
+                  </button>
+                </span>
+              </div>
+            </div>
           </div>
 
           <!-- Escuela -->
@@ -108,6 +134,19 @@
             </select>
           </div>
 
+          <!-- Ciclo -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Ciclo *</label>
+            <select
+              [(ngModel)]="cursoIndividualData.ciclo"
+              name="ciclo"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+            >
+              <option *ngFor="let ciclo of ciclos" [value]="ciclo">Ciclo {{ciclo}}</option>
+            </select>
+          </div>
+
           <!-- Grupo -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Grupo *</label>
@@ -117,7 +156,7 @@
               name="grupo"
               required
               class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Ej: A1, B2"
+              placeholder="Ej: G5, A1"
             >
           </div>
         </div>
@@ -126,7 +165,7 @@
         <div class="mt-6">
           <h4 class="text-md font-medium text-gray-700 mb-3">Horarios</h4>
           
-          <div *ngFor="let horario of cursoIndividualData.cursoHorario; let j = index" class="mb-4 p-4 bg-gray-50 rounded-md">
+          <div *ngFor="let horario of cursoIndividualData.horarios; let j = index" class="mb-4 p-4 bg-gray-50 rounded-md">
             <div class="flex justify-between items-center mb-2">
               <span class="text-sm font-medium text-gray-600">Horario {{j + 1}}</span>
               <button 
@@ -192,33 +231,17 @@
                 </div>
               </div>
 
-              <!-- Aula y Duración -->
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Aula *</label>
-                  <select
-                    [(ngModel)]="horario.idAula"
-                    [name]="'aula_individual_' + j"
-                    required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="0" disabled selected>Seleccione un aula</option>
-                    <option *ngFor="let aula of filtrarAulasPorTipo(horario.tipoSesion)" [value]="aula.idAula">
-                      {{ aula.nombre }} ({{ aula.tipo }})
-                    </option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Duración *</label>
-                  <input
-                    type="number"
-                    [(ngModel)]="horario.duracionHoras"
-                    [name]="'duracionHoras_individual_' + j"
-                    required
-                    readonly
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-2 focus:ring-blue-500"
-                  >
-                </div>
+              <!-- Duración -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Duración (horas) *</label>
+                <input
+                  type="number"
+                  [(ngModel)]="horario.duracionHoras"
+                  [name]="'duracionHoras_individual_' + j"
+                  required
+                  readonly
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                >
               </div>
             </div>
           </div>
@@ -239,7 +262,7 @@
         <div class="flex justify-end space-x-4 pt-4">
           <button
             type="button"
-            routerLink="/director/gestionar-cursos"
+            routerLink="/Departamento Academico/gestionar-cursos"
             class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             Cancelar
@@ -288,20 +311,47 @@
               </select>
             </div>
 
-            <!-- Plan de Estudio -->
+            <!-- Plan de Estudios -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Plan de Estudio *</label>
-              <select
-                [(ngModel)]="curso.idPlanDeEstudio"
-                [name]="'idPlanDeEstudio_' + i"
-                required
-                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="0" disabled selected>Seleccione un plan</option>
-                <option *ngFor="let p of planesEstudio" [value]="p.idPlanDeEstudio">
-                  {{ p.nombre }}
-                </option>
-              </select>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Plan de Estudios *</label>
+              <div class="space-y-2">
+                <div class="flex space-x-2">
+                  <select
+                    [(ngModel)]="planEstudioSeleccionadoMultiple[i]"
+                    [name]="'planEstudioSelectMultiple_' + i"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option [ngValue]="null">Seleccionar plan de la lista</option>
+                    <option *ngFor="let plan of planesEstudio" [ngValue]="plan.nombre">
+                      {{ plan.nombre }}
+                    </option>
+                  </select>
+                  <button
+                    type="button"
+                    (click)="agregarPlanDesdeSelectMultiple(i)"
+                    [disabled]="!planEstudioSeleccionadoMultiple[i]"
+                    class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    Agregar
+                  </button>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <span 
+                    *ngFor="let plan of curso.planDeEstudios; let planIndex = index"
+                    class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  >
+                    {{ plan }}
+                    <button
+                      type="button"
+                      (click)="removerPlanDeEstudio(planIndex, i)"
+                      class="ml-1 text-blue-600 hover:text-blue-800"
+                    >
+                      ×
+                    </button>
+                  </span>
+                </div>
+              </div>
             </div>
 
             <!-- Escuela -->
@@ -336,6 +386,19 @@
               </select>
             </div>
 
+            <!-- Ciclo -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Ciclo *</label>
+              <select
+                [(ngModel)]="curso.ciclo"
+                [name]="'ciclo_' + i"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
+              >
+                <option *ngFor="let ciclo of ciclos" [value]="ciclo">Ciclo {{ciclo}}</option>
+              </select>
+            </div>
+
             <!-- Grupo -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Grupo *</label>
@@ -345,7 +408,7 @@
                 [name]="'grupo_' + i"
                 required
                 class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                placeholder="Ej: A1, B2"
+                placeholder="Ej: G5, A1"
               >
             </div>
           </div>
@@ -354,7 +417,7 @@
           <div class="mt-6">
             <h4 class="text-md font-medium text-gray-700 mb-3">Horarios</h4>
             
-            <div *ngFor="let horario of curso.cursoHorario; let j = index" class="mb-4 p-4 bg-gray-50 rounded-md">
+            <div *ngFor="let horario of curso.horarios; let j = index" class="mb-4 p-4 bg-gray-50 rounded-md">
               <div class="flex justify-between items-center mb-2">
                 <span class="text-sm font-medium text-gray-600">Horario {{j + 1}}</span>
                 <button 
@@ -420,33 +483,17 @@
                   </div>
                 </div>
 
-                <!-- Aula y Duración -->
-                <div class="grid grid-cols-2 gap-2">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Aula *</label>
-                    <select
-                      [(ngModel)]="horario.idAula"
-                      [name]="'aula_' + i + '_' + j"
-                      required
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="0" disabled selected>Seleccione un aula</option>
-                      <option *ngFor="let aula of filtrarAulasPorTipo(horario.tipoSesion)" [value]="aula.idAula">
-                        {{ aula.nombre }} ({{ aula.tipo }})
-                      </option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Duración *</label>
-                    <input
-                      type="number"
-                      [(ngModel)]="horario.duracionHoras"
-                      [name]="'duracionHoras_' + i + '_' + j"
-                      required
-                      readonly
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-2 focus:ring-blue-500"
-                    >
-                  </div>
+                <!-- Duración -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Duración (horas) *</label>
+                  <input
+                    type="number"
+                    [(ngModel)]="horario.duracionHoras"
+                    [name]="'duracionHoras_' + i + '_' + j"
+                    required
+                    readonly
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                  >
                 </div>
               </div>
             </div>
@@ -479,7 +526,7 @@
           <div class="flex space-x-4">
             <button
               type="button"
-              routerLink="/director/gestionar-cursos"
+              routerLink="/Departamento Academico/gestionar-cursos"
               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Cancelar

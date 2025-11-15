@@ -11,39 +11,32 @@ import { AulaRequest, AulaResponse, Tipo, EstadoAula } from '../../../core/model
   templateUrl: './gestionar-aulas.component.html'
 })
 export class GestionarAulasComponent implements OnInit {
-  // Datos para la lista
   aulas: AulaResponse[] = [];
   loading = false;
   error = '';
 
-  // Estados para modales
   aulaSeleccionada: AulaResponse | null = null;
   aulaEditando: AulaResponse | null = null;
   aulaEliminando: AulaResponse | null = null;
   
-  // Estados de carga específicos
   loadingDetalle = false;
   loadingEdicion = false;
   loadingEliminacion = false;
   
-  // Estados de modales
   mostrarModalDetalle = false;
   mostrarModalEditar = false;
   mostrarModalEliminar = false;
 
-  // Estado del modal de registro
   showModalRegistro = false;
   
-  // Datos del formulario actual
   aulaActual: AulaRequest = {
     tipo: Tipo.TEORIA,
-    nombre: '',  // Cambiado de codigo a nombre
+    nombre: '', 
     piso: 1,
     capacidad: 0,
     estado: EstadoAula.DISPONIBLE
   };
 
-  // Lista de aulas a registrar
   aulasParaRegistrar: AulaRequest[] = [];
 
   // Estados del formulario

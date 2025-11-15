@@ -199,7 +199,7 @@ export class ListarPreferenciaComponent implements OnInit {
   }
 
   editarPreferencia(id: number) {
-    this.router.navigate(['/docente/editar-preferencia', id]);
+    this.router.navigate(['/Docente/editar-preferencia', id]);
   }
 
   // Helper function para mostrar mensajes

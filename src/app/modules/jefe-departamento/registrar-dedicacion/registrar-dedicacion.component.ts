@@ -75,7 +75,7 @@ export class RegistrarDedicacionComponent implements OnInit {
       error: (err) => {
         this.showMessage('Error al cargar dedicación: ' + (err.error?.message || ''), true);
         this.isLoading = false;
-        this.router.navigate(['/jefe-departamento/gestionar-dedicaciones']);
+        this.router.navigate(['/Escuela Profesional/gestionar-dedicaciones']);
       }
     });
   }
@@ -131,7 +131,7 @@ export class RegistrarDedicacionComponent implements OnInit {
           next: (response: any) => {
             if (response.status === 200) {
               this.showMessage('Dedicación actualizada con éxito', false);
-              setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-dedicaciones']), 1500);
+              setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-dedicaciones']), 1500);
             } else {
               this.showMessage(response.message || 'Error al actualizar dedicación', true);
             }
@@ -144,7 +144,7 @@ export class RegistrarDedicacionComponent implements OnInit {
           next: (response: any) => {
             if (response.status === 201) {
               this.showMessage('Dedicación registrada con éxito', false);
-              setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-dedicaciones']), 1500);
+              setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-dedicaciones']), 1500);
             } else {
               this.showMessage(response.message || 'Error al registrar dedicación', true);
             }
@@ -173,7 +173,7 @@ export class RegistrarDedicacionComponent implements OnInit {
         next: (response: any) => {
           if (response.status === 201) {
             this.showMessage('Dedicaciones registradas con éxito', false);
-            setTimeout(() => this.router.navigate(['/jefe-departamento/gestionar-dedicaciones']), 1500);
+            setTimeout(() => this.router.navigate(['/Escuela Profesional/gestionar-dedicaciones']), 1500);
           } else {
             this.showMessage(response.message || 'Error al registrar dedicaciones', true);
           }

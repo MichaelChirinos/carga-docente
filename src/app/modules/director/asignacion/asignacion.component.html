@@ -10,25 +10,50 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-      <!-- Loading State -->
-      <div *ngIf="loading" class="rounded-md bg-blue-50 p-4 mb-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-blue-400 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-blue-800">Procesando asignación...</h3>
-            <div class="mt-2 text-sm text-blue-700">
-              <p>Esto puede tomar unos momentos. Por favor no cierre la página.</p>
-            </div>
-          </div>
+      
+      <!-- Selector de Ciclo Académico -->
+      <div class="mb-6">
+        <label for="cicloAcademico" class="block text-sm font-medium text-gray-700 mb-2">
+          Seleccionar Ciclo Académico
+        </label>
+        <select
+          id="cicloAcademico"
+          [(ngModel)]="cicloAcademicoSeleccionado"
+          class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+          [class.border-red-300]="error && !cicloAcademicoSeleccionado"
+        >
+          <option value="">-- Seleccione un ciclo --</option>
+          <option 
+            *ngFor="let ciclo of ciclosAcademicos" 
+            [value]="ciclo.idCicloAcademico"
+            [class.font-semibold]="ciclo.enabled"
+          >
+            {{ ciclo.nombre }} {{ ciclo.enabled ? '(Activo)' : '' }}
+          </option>
+        </select>
+        
+        <!-- Información del ciclo activo -->
+        <div *ngIf="cicloAcademicoActivo && !cicloAcademicoSeleccionado" class="mt-2 p-3 bg-yellow-50 rounded-md">
+          <p class="text-sm text-yellow-700">
+            <span class="font-medium">Sugerencia:</span> 
+            El ciclo <strong>{{ cicloAcademicoActivo.nombre }}</strong> está marcado como activo.
+          </p>
         </div>
       </div>
 
-      <!-- Error State -->
-      <div *ngIf="error" class="rounded-md bg-red-50 p-4 mb-4">
+      <!-- Información del ciclo seleccionado -->
+      <div *ngIf="cicloAcademicoSeleccionado" class="mb-6 p-4 bg-blue-50 rounded-lg">
+        <h3 class="text-sm font-medium text-blue-800">Ciclo Académico Seleccionado</h3>
+        <p class="mt-1 text-sm text-blue-700">
+          {{ obtenerCicloSeleccionado()?.nombre }}
+        </p>
+        <p class="text-xs text-blue-600 mt-1">
+          {{ obtenerCicloSeleccionado()?.enabled ? '✓ Este ciclo está activo' : '⚠ Este ciclo no está activo' }}
+        </p>
+      </div>
+
+      <!-- Error si no hay ciclos -->
+      <div *ngIf="error && ciclosAcademicos.length === 0" class="rounded-md bg-red-50 p-4 mb-4">
         <div class="flex">
           <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -36,9 +61,27 @@
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Error en la asignación</h3>
+            <h3 class="text-sm font-medium text-red-800">No se puede ejecutar el algoritmo</h3>
             <div class="mt-2 text-sm text-red-700">
               <p>{{ message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="loading" class="rounded-md bg-blue-50 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-blue-800">Ejecutando algoritmo</h3>
+            <div class="mt-2 text-sm text-blue-700">
+              <p>Procesando asignaciones, por favor espere...</p>
             </div>
           </div>
         </div>
@@ -53,7 +96,7 @@
             </svg>
           </div>
           <div class="ml-3">
-            <h3 class="text-sm font-medium text-green-800">Asignación completada</h3>
+            <h3 class="text-sm font-medium text-green-800">Algoritmo ejecutado correctamente</h3>
             <div class="mt-2 text-sm text-green-700">
               <p>{{ message }}</p>
             </div>
@@ -61,14 +104,31 @@
         </div>
       </div>
 
+      <!-- Error State durante ejecución -->
+      <div *ngIf="error && cicloAcademicoSeleccionado" class="rounded-md bg-red-50 p-4 mb-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">Error al ejecutar algoritmo</h3>
+            <div class="mt-2 text-sm text-red-700">
+              <p>{{ message }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Main Content -->
-      <div *ngIf="!loading && !success" class="text-center">
+      <div *ngIf="!loading && !success && ciclosAcademicos.length > 0" class="text-center">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
         <h3 class="mt-2 text-lg font-medium text-gray-900">Algoritmo de Asignación Automática</h3>
-        <p class="mt-1 text-sm text-gray-500">
-          Este proceso asignará cursos a docentes basado en:
+        <p class="mt-1 text-sm text-gray-500" *ngIf="cicloAcademicoSeleccionado">
+          Este proceso asignará cursos del ciclo <strong>{{ obtenerCicloSeleccionado()?.nombre }}</strong> a docentes basado en:
         </p>
         <ul class="mt-2 text-sm text-gray-500 text-left list-disc list-inside">
           <li>Preferencias de asignatura</li>
@@ -78,14 +138,15 @@
         
         <div class="mt-6">
           <button
-            (click)="ejecutarAlgoritmo(1)"
+            (click)="ejecutarAlgoritmo()"
+            [disabled]="!cicloAcademicoSeleccionado"
             type="button"
-            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
             </svg>
-            Ejecutar Algoritmo
+            {{ cicloAcademicoSeleccionado ? 'Ejecutar Algoritmo para ' + obtenerCicloSeleccionado()?.nombre : 'Seleccione un ciclo académico' }}
           </button>
         </div>
       </div>

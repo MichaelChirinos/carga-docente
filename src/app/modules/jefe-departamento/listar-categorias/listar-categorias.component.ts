@@ -41,6 +41,6 @@ export class ListarCategoriasComponent {
   }
 
   editarCategoria(id: number): void {
-    this.router.navigate(['/jefe-departamento/editar-categoria', id]);
+    this.router.navigate(['/Escuela Profesional/editar-categoria', id]);
   }
 }

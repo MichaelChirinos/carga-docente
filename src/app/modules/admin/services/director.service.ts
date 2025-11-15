@@ -13,6 +13,9 @@ import { JefeDepartamentoRequest, JefeDepartamentoApiResponse } from '../../../c
 import { Algoritmo,AlgoritmoRequest,AlgoritmoResponse, AlgoritmoListResponse } from '../../../core/models/algoritmo.model';
 import { Categoria } from '../../../core/models/docente.model';
 import { AsignacionRequest } from '../../../core/models/asignacion';
+import { EscuelaProfesionalRequest, EscuelaProfesionalResponse, EscuelaProfesionalListResponse} from '../../../core/models/escuela-profesional.model';
+import { DepartamentoAcademicoListResponse, DepartamentoAcademicoRequest, DepartamentoAcademicoResponse } from '../../../core/models/departamento-academico.model';
+
 @Injectable({ providedIn: 'root' })
 export class DirectorService {
   private apiUrl = `${environment.apiUrl}`; 
@@ -25,6 +28,9 @@ export class DirectorService {
       directorData
     );
   }
+  obtenerAsignacionesPorCarga(idCarga: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/asignacion/listar-carga/${idCarga}`);
+}
     registrarLogistica(logisticaData: LogisticaRequest): Observable<LogisticaApiResponse> {
     return this.http.post<LogisticaApiResponse>(`${this.apiUrl}/logistica/insertar`, logisticaData);
   }
@@ -37,6 +43,70 @@ registrarJefeDepartamento(jefeData: JefeDepartamentoRequest): Observable<JefeDep
       jefeData
     );
   }
+
+  registrarEscuelaProfesional(data: EscuelaProfesionalRequest): Observable<EscuelaProfesionalResponse> {
+    return this.http.post<EscuelaProfesionalResponse>(`${this.apiUrl}/escuela-profesional/insertar`, data);
+  }
+
+  obtenerEscuelasProfesionales(): Observable<EscuelaProfesionalListResponse> {
+    return this.http.get<EscuelaProfesionalListResponse>(`${this.apiUrl}/escuela-profesional/listar`);
+  }
+
+  obtenerEscuelaProfesionalPorId(idEscuelaProfesional: number): Observable<EscuelaProfesionalResponse> {
+    return this.http.get<EscuelaProfesionalResponse>(`${this.apiUrl}/escuela-profesional/buscar/${idEscuelaProfesional}`);
+  }
+
+insertarHorarioPorCurso(idCurso: number, horarioData: any): Observable<any> {
+  return this.http.post(`${this.apiUrl}/horario/insertar-por-curso/${idCurso}`, horarioData);
+}
+obtenerHorariosPorCurso(idCurso: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/horario/listar-por-curso/${idCurso}`);
+}
+// Insertar múltiples horarios por curso
+insertarHorariosPorCurso(idCurso: number, horariosData: any[]): Observable<any> {
+  return this.http.post(`${this.apiUrl}/horario/insertar-all-por-curso/${idCurso}`, horariosData);
+}
+
+// Actualizar horario
+actualizarHorario(idHorario: number, horarioData: any): Observable<any> {
+  return this.http.put(`${this.apiUrl}/horario/actualizar/${idHorario}`, horarioData);
+}
+
+// Eliminar horario
+eliminarHorario(idHorario: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/horario/eliminar/${idHorario}`);
+}
+
+
+  actualizarEscuelaProfesional(idEscuelaProfesional: number, data: EscuelaProfesionalRequest): Observable<EscuelaProfesionalResponse> {
+    return this.http.put<EscuelaProfesionalResponse>(`${this.apiUrl}/escuela-profesional/actualizar/${idEscuelaProfesional}`, data);
+  }
+
+  eliminarEscuelaProfesional(idEscuelaProfesional: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/escuela-profesional/eliminar/${idEscuelaProfesional}`);
+  }
+
+
+  registrarDepartamentoAcademico(data: DepartamentoAcademicoRequest): Observable<DepartamentoAcademicoResponse> {
+    return this.http.post<DepartamentoAcademicoResponse>(`${this.apiUrl}/departamento-academico/insertar`, data);
+  }
+
+  obtenerDepartamentosAcademicos(): Observable<DepartamentoAcademicoListResponse> {
+    return this.http.get<DepartamentoAcademicoListResponse>(`${this.apiUrl}/departamento-academico/listar`);
+  }
+
+  obtenerDepartamentoAcademicoPorId(idDepartamentoAcademico: number): Observable<DepartamentoAcademicoResponse> {
+    return this.http.get<DepartamentoAcademicoResponse>(`${this.apiUrl}/departamento-academico/buscar/${idDepartamentoAcademico}`);
+  }
+
+  actualizarDepartamentoAcademico(idDepartamentoAcademico: number, data: DepartamentoAcademicoRequest): Observable<DepartamentoAcademicoResponse> {
+    return this.http.put<DepartamentoAcademicoResponse>(`${this.apiUrl}/departamento-academico/actualizar/${idDepartamentoAcademico}`, data);
+  }
+
+  eliminarDepartamentoAcademico(idDepartamentoAcademico: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/departamento-academico/eliminar/${idDepartamentoAcademico}`);
+  }
+  
   obtenerAsignaturaPorId(idAsignatura: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/asignatura/buscar/${idAsignatura}`);
 }
@@ -85,8 +155,8 @@ eliminarJefeDepartamento(idJefe: number): Observable<any> {
     obtenerAlgoritmos(): Observable<AlgoritmoListResponse> {
     return this.http.get<AlgoritmoListResponse>(`${this.apiUrl}/algoritmo/listar`);
   }
-  marcarAlgoritmoComoPrincipal(id: number): Observable<any> {
-  return this.http.put(`${this.apiUrl}/algoritmo/principal/${id}`, {});
+  marcarAlgoritmoComoPrincipal(idAlgoritmo: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/algoritmo/principal-asignar/${idAlgoritmo}`, {});
 }
 // director.service.ts
 obtenerPlanEstudioPorId(idPlan: number): Observable<any> {
@@ -176,8 +246,8 @@ actualizarAsignatura(id: number, data: AsignaturaRequest): Observable<any> {
 actualizarCategoria(id: number, categoriaData: Partial<Categoria>): Observable<Categoria> {
   return this.http.put<Categoria>(`${this.apiUrl}/categoria/actualizar/${id}`, categoriaData);
 }
-obtenerCursos(): Observable<any> {
-  return this.http.get(`${this.apiUrl}/curso/listar`);
+obtenerCursosPorCicloAcademico(idCicloAcademico: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/curso/listar-por-ciclo-academico/${idCicloAcademico}`);
 }
 registrarCurso(curso: CursoIndividualRequest): Observable<any> {
   return this.http.post(`${this.apiUrl}/curso/insertar`, curso);
@@ -283,6 +353,23 @@ registrarCursosMultiples(cursosData: CursoRequest[]): Observable<any> {
     return this.http.get(`${this.apiUrl}/asignacion/buscar/${id}`);
   }
 
+// En director.service.ts - Agregar estos métodos:
+
+// Obtener asignaciones por carga académica
+obtenerAsignacionesPorCargaAcademica(idCarga: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/asignacion/listar-carga/${idCarga}`);
+}
+
+// Obtener asignaciones por carga y escuela
+obtenerAsignacionesPorCargaYEscuela(idCarga: number, idEscuela: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/asignacion/listar-carga-escuela/${idCarga}/${idEscuela}`);
+}
+
+// Obtener asignaciones por docente y carga (ya lo tienes)
+obtenerAsignacionesPorDocenteYCarga(idCarga: number,idDocente: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/asignacion/listar-carga-docente/${idCarga}/${idDocente}`);
+}
+
   // Actualizar asignación
   actualizarAsignacion(id: number, asignacion: AsignacionRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/asignacion/actualizar/${id}`, asignacion);
@@ -315,8 +402,48 @@ obtenerAsignaciones(): Observable<any> {
 obtenerAulas(): Observable<any> {
   return this.http.get(`${this.apiUrl}/aula/listar`);
 }
-  obtenerAsignacionesPorDocenteYCarga(idDocente: number, idCarga: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/asignacion/listar/${idDocente}/${idCarga}`);
-  }
+obtenerCargasAcademicasPorCiclo(idCicloAcademico: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/carga/listar-por-ciclo-academico/${idCicloAcademico}`);
+}
+// En director.service.ts
+obtenerCargaPorId(idCarga: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/carga/buscar/${idCarga}`);
+}
 
+eliminarCarga(idCarga: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/carga/eliminar/${idCarga}`);
+}
+
+asignarCargaPrincipal(idCicloAcademico: number, idCarga: number): Observable<any> {
+  return this.http.put(`${this.apiUrl}/carga/principal-asignar-por-ciclo-academico/${idCicloAcademico}/${idCarga}`, {});
+}
+
+obtenerCargaPrincipal(idCicloAcademico: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/carga/principal-buscar-por-ciclo-academico/${idCicloAcademico}`);
+}
+
+// En director.service.ts - CORREGIR estos métodos:
+
+// Resultados (GET - correcto)
+obtenerResultadoPorId(idResultado: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/resultado/buscar/${idResultado}`);
+}
+
+obtenerResultadoPorCarga(idCarga: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/resultado/buscar-por-carga/${idCarga}`);
+}
+
+// Reportes - PDF (POST - corregido)
+exportarReportePdfCargaElectiva(idCarga: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/reporte/exportar-pdf/carga-electiva-por-docente/${idCarga}`, {}, {
+    responseType: 'blob'
+  });
+}
+
+// Reportes - Excel (POST - corregido)
+exportarReporteExcelCargaElectiva(idCarga: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/reporte/exportar-excel/carga-electiva-por-docente/${idCarga}`, {}, {
+    responseType: 'blob'
+  });
+}
 }

@@ -12,6 +12,11 @@ import { RegistrarLogisticaComponent } from './registrar-logistica/registrar-log
 import {GestionarLogisticaComponent} from './gestionar-logistica/gestionar-logistica.component';
 import { GestionarJefesDepartamentoComponent } from './gestionar-jefes-departamento/gestionar-jefes-departamento.component';
 import { RegistrarJefeDepartamentoComponent } from './registrar-jefe-departamento/registrar-jefe-departamento.component';
+import { GestionarEscuelasProfesionalesComponent } from './gestionar-escuelas-profesionales/gestionar-escuelas-profesionales.component';
+import { RegistrarEscuelaProfesionalComponent } from './registrar-escuela-profesional/registrar-escuela-profesional.component';
+import { GestionarDepartamentosAcademicosComponent } from './gestionar-departamentos-academicos/gestionar-departamentos-academicos.component';
+import { RegistrarDepartamentoAcademicoComponent } from './registrar-departamento-academico/registrar-departamento-academico.component';
+
 export const ADMIN_ROUTES: Routes = [
   { 
     path: '',
@@ -23,10 +28,30 @@ export const ADMIN_ROUTES: Routes = [
         path: '', 
         component: AdminDashboardComponent
       },
+      {
+        path: 'gestionar-escuelas-profesionales', // Cambiado de 'gestionar-jefes-departamento'
+        component: GestionarEscuelasProfesionalesComponent
+      },
+      {
+        path: 'registrar-escuela-profesional', // Cambiado de 'registrar-jefe-departamento'
+        component: RegistrarEscuelaProfesionalComponent
+      },
+      {
+        path: 'editar-escuela-profesional/:id', // Nueva ruta para editar
+        component: RegistrarEscuelaProfesionalComponent
+      },
       // Rutas de director (manteniendo tu estructura)
       {
-        path: 'listar-directores',
-        component: ListarDirectoresComponent
+        path: 'listar-directores', // Cambiar nombre para ser más específico
+        component: GestionarDepartamentosAcademicosComponent
+      },
+      {
+        path: 'registrar-director',
+        component: RegistrarDepartamentoAcademicoComponent
+      },
+      {
+        path: 'editar-director/:id',
+        component: RegistrarDepartamentoAcademicoComponent
       },
       {
   path: 'gestionar-escuelas',

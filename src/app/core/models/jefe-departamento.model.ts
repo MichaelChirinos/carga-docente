@@ -1,4 +1,3 @@
-// src/app/models/jefe-departamento.model.ts
 export interface JefeDepartamentoRequest {
   email: string;
   password: string;

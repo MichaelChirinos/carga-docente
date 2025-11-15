@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { EspecializacionService } from '../services/especializacion.service';
-import { EspecializacionRequest, EspecializacionResponse, EspecializacionRequestDisplay } from '../../../core/models/especializacion.model';
-import { Docente } from '../../../core/models/docente.model';
+import { EspecializacionRequest, EspecializacionResponse, EspecializacionDisplay } from '../../../core/models/especializacion.model';import { Docente } from '../../../core/models/docente.model';
 
 @Component({
   selector: 'app-gestionar-especializaciones',
@@ -18,6 +17,7 @@ export class GestionarEspecializacionesComponent implements OnInit {
   loading = false;
   error = '';
 docenteFiltro: number | 'todos' = 'todos';
+primeraCarga = true; 
 
   // Datos para los selects
   docentes: Docente[] = [];
@@ -48,7 +48,7 @@ docenteFiltro: number | 'todos' = 'todos';
   };
 
   // Lista de especializaciones a registrar
-  especializacionesParaRegistrar: EspecializacionRequestDisplay[] = [];
+  especializacionesParaRegistrar: EspecializacionDisplay [] = [];
 
   // Estados del formulario
   isLoadingForm = false;
@@ -63,29 +63,40 @@ docenteFiltro: number | 'todos' = 'todos';
     this.cargarAsignaturas();
   }
 onDocenteFiltroChange(): void {
+  // Siempre cambiar primeraCarga a false cuando se selecciona algo
+  this.primeraCarga = false;
+  
   if (this.docenteFiltro === 'todos') {
-    this.cargarEspecializaciones();
+    // Cuando selecciona "todos", limpiar la lista y mostrar mensaje
+    this.especializaciones = [];
+    this.error = '';
   } else {
+    // Cuando selecciona un docente, cargar sus especializaciones
     this.cargarEspecializacionesPorDocente(this.docenteFiltro);
   }
 }
-
 cargarEspecializacionesPorDocente(idDocente: number): void {
   this.loading = true;
   this.error = '';
+  this.primeraCarga = false; // ← Asegurar que sea false aquí también
 
   this.especializacionService.obtenerEspecializacionesPorDocente(idDocente).subscribe({
     next: (response: any) => {
       this.loading = false;
+      this.primeraCarga = false; // ← Y aquí también
+      
       if (response.status === 200) {
         this.especializaciones = response.data;
       } else {
         this.error = response.message || 'Error al cargar las especializaciones del docente';
+        this.especializaciones = [];
       }
     },
     error: (err) => {
       this.loading = false;
+      this.primeraCarga = false; // ← Y aquí también
       this.error = 'Error de conexión: ' + (err.error?.message || '');
+      this.especializaciones = [];
       console.error('Error:', err);
     }
   });
@@ -169,39 +180,69 @@ cargarEspecializacionesPorDocente(idDocente: number): void {
     this.error = '';
   }
 
-  guardarEdicion(): void {
-    if (!this.especializacionEditando) return;
-
-    this.loadingEdicion = true;
-    this.error = '';
-
-    const datosActualizacion: EspecializacionRequest = {
-      idAsignatura: this.especializacionEditando.asignatura.idAsignatura,
-      idDocente: this.especializacionEditando.docente.idDocente
-    };
-
-    this.especializacionService.actualizarEspecializacion(this.especializacionEditando.idEspecializacion, datosActualizacion).subscribe({
-      next: (response: any) => {
-        if (response.status === 200) {
-          // Actualizar la lista local
-          const index = this.especializaciones.findIndex(e => e.idEspecializacion === this.especializacionEditando!.idEspecializacion);
-          if (index !== -1) {
-            this.especializaciones[index] = { ...this.especializaciones[index], ...response.data };
-          }
-          this.cerrarModalEditar();
-          this.cargarEspecializaciones(); // Recargar para asegurar datos actualizados
-        } else {
-          this.error = response.message || 'Error al actualizar la especialización';
+// En el componente, agrega este método:
+onDocenteChange(idDocente: number): void {
+  if (this.especializacionEditando) {
+    // Si no existe el objeto docente, crearlo
+    if (!this.especializacionEditando.docente) {
+      this.especializacionEditando.docente = {
+        idDocente: idDocente,
+        codigo: '',
+        usuario: {
+          nombre: '',
+          apellido: ''
         }
-        this.loadingEdicion = false;
-      },
-      error: (err) => {
-        this.error = 'Error al actualizar la especialización';
-        this.loadingEdicion = false;
-        console.error(err);
-      }
-    });
+      };
+    } else {
+      // Si ya existe, solo actualizar el id
+      this.especializacionEditando.docente.idDocente = idDocente;
+    }
   }
+}
+
+guardarEdicion(): void {
+  if (!this.especializacionEditando) return;
+
+  this.loadingEdicion = true;
+  this.error = '';
+
+  // Verificar que docente no sea undefined
+  if (!this.especializacionEditando.docente) {
+    this.error = 'Error: Información del docente no disponible';
+    this.loadingEdicion = false;
+    return;
+  }
+
+  const datosActualizacion: EspecializacionRequest = {
+    idAsignatura: this.especializacionEditando.asignatura.idAsignatura,
+    idDocente: this.especializacionEditando.docente.idDocente // ← ahora seguro que existe
+  };
+
+  this.especializacionService.actualizarEspecializacion(this.especializacionEditando.idEspecializacion, datosActualizacion).subscribe({
+    next: (response: any) => {
+      if (response.status === 200) {
+        // Actualizar la lista local
+        const index = this.especializaciones.findIndex(e => e.idEspecializacion === this.especializacionEditando!.idEspecializacion);
+        if (index !== -1) {
+          this.especializaciones[index] = { ...this.especializaciones[index], ...response.data };
+        }
+        this.cerrarModalEditar();
+        // Recargar las especializaciones del docente actual
+        if (this.docenteFiltro !== 'todos') {
+          this.cargarEspecializacionesPorDocente(this.docenteFiltro);
+        }
+      } else {
+        this.error = response.message || 'Error al actualizar la especialización';
+      }
+      this.loadingEdicion = false;
+    },
+    error: (err) => {
+      this.error = 'Error al actualizar la especialización';
+      this.loadingEdicion = false;
+      console.error(err);
+    }
+  });
+}
 
   // ELIMINAR ESPECIALIZACIÓN
   abrirEliminar(especializacion: EspecializacionResponse): void {
@@ -292,7 +333,7 @@ cargarEspecializacionesPorDocente(idDocente: number): void {
     // Extraer solo el nombre de la asignatura
     const asignaturaNombre = asignaturaTexto.replace('Seleccionar asignatura', '').trim() || 'N/A';
 
-    const nuevaEspecializacion: EspecializacionRequestDisplay = { 
+    const nuevaEspecializacion: EspecializacionDisplay  = { 
       ...this.especializacionActual,
       docenteNombre: docenteNombre,
       docenteCodigo: docenteCodigo,
@@ -402,6 +443,6 @@ getCodigoDocenteSeleccionado(): string {
   if (this.docenteFiltro === 'todos') return 'N/A';
   
   const docente = this.docentes.find(d => d.idDocente === this.docenteFiltro);
-  return docente ? docente.usuario.codigo : 'N/A';
+  return docente ? docente.codigo : 'N/A'; // ✅ docente.codigo (NO usuario.codigo)
 }
 }

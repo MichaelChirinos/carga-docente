@@ -105,7 +105,7 @@ export class ListarAsignaturasComponent {
   }
 
   editarAsignatura(id: number): void {
-    this.router.navigate(['/director/editar-asignatura', id]);
+    this.router.navigate(['/Departamento Academico/editar-asignatura', id]);
   }
 
   // Cerrar modales
