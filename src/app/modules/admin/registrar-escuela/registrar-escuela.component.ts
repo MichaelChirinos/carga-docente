@@ -51,7 +51,7 @@ export class RegistrarEscuelaComponent {
     this.directorService.registrarEscuelasMultiples(this.escuelasLista).subscribe({
       next: (response: EscuelaResponse) => {
         this.showMessage(response.message || 'Escuelas registradas con éxito', false);
-        setTimeout(() => this.router.navigate(['/admin/gestionar-escuelas']), 1500); // Cambiado a listar-escuelas
+        setTimeout(() => this.router.navigate(['/Administrador/gestionar-escuelas']), 1500); // Cambiado a listar-escuelas
       },
       error: (err) => {
         this.showMessage('Error: ' + (err.error?.message || 'No se pudieron registrar las escuelas'), true);
@@ -73,7 +73,7 @@ export class RegistrarEscuelaComponent {
       next: (response: EscuelaResponse) => {
         this.showMessage(response.message || 'Escuela registrada con éxito', false);
         this.nuevaEscuela = { nombre: '' };
-        setTimeout(() => this.router.navigate(['/admin/gestionar-escuelas']), 1500);
+        setTimeout(() => this.router.navigate(['/Administrador/gestionar-escuelas']), 1500);
       },
       error: (err) => {
         this.showMessage('Error: ' + (err.error?.message || 'No se pudo registrar la escuela'), true);
