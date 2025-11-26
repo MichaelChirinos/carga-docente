@@ -180,7 +180,7 @@ cargarEspecializacionesPorDocente(idDocente: number): void {
     this.error = '';
   }
 
-// En el componente, agrega este método:
+
 onDocenteChange(idDocente: number): void {
   if (this.especializacionEditando) {
     // Si no existe el objeto docente, crearlo
@@ -431,7 +431,7 @@ guardarEdicion(): void {
       ? 'bg-green-100 text-green-800' 
       : 'bg-red-100 text-red-800';
   }
-  // En el componente, agrega estos métodos:
+
 getNombreDocenteSeleccionado(): string {
   if (this.docenteFiltro === 'todos') return 'Información no disponible';
   

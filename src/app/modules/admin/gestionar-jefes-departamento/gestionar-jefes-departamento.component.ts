@@ -1,4 +1,3 @@
-// gestionar-jefes-departamento.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,23 +12,19 @@ import { DirectorService } from '../services/director.service';
   templateUrl: './gestionar-jefes-departamento.component.html'
 })
 export class GestionarJefesDepartamentoComponent implements OnInit {
-  // Datos para la lista
   jefesDepartamento: JefeDepartamentoResponse[] = [];
   loading = false;
   error = '';
 
-  // Estados de los modales
   showModalRegistrar = false;
   showModalDetalles = false;
   showModalEditar = false;
   showModalEliminar = false;
   
-  // Datos seleccionados
   jefeSeleccionado: any = null;
   jefeEditando: any = null;
   jefeEliminando: any = null;
 
-  // Datos del formulario
   jefeData: JefeDepartamentoRequest = {
     email: '',
     password: '',
@@ -38,7 +33,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     cargo: 'jefe de departamento de escuela de ciencias de la computación'
   };
 
-  // Estados del formulario
   isLoadingForm = false;
   loadingDetalles = false;
   loadingEdicion = false;
@@ -76,7 +70,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     });
   }
 
-  // Modal functions
   openModalRegistrar() {
     this.showModalRegistrar = true;
     this.mensaje = '';
@@ -91,7 +84,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     this.errorForm = '';
   }
 
-  // Ver detalles
   verDetalles(jefe: any) {
     this.loadingDetalles = true;
     this.showModalDetalles = true;
@@ -119,7 +111,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     this.jefeSeleccionado = null;
   }
 
-  // Editar
   abrirEditar(jefe: any) {
     this.jefeEditando = { ...jefe };
     this.showModalEditar = true;
@@ -151,7 +142,7 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     this.directorService.actualizarJefeDepartamento(this.jefeEditando.idJefeDepartamento, datosActualizacion).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
-          this.cargarJefesDepartamento(); // Recargar lista
+          this.cargarJefesDepartamento();
           this.closeModalEditar();
         } else {
           this.errorForm = response.message || 'Error al actualizar';
@@ -166,7 +157,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     });
   }
 
-  // Eliminar
   abrirEliminar(jefe: any) {
     this.jefeEliminando = { ...jefe };
     this.showModalEliminar = true;
@@ -185,7 +175,7 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     this.directorService.eliminarJefeDepartamento(this.jefeEliminando.idJefeDepartamento).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
-          this.cargarJefesDepartamento(); // Recargar lista
+          this.cargarJefesDepartamento(); 
           this.closeModalEliminar();
         } else {
           this.errorForm = response.message || 'Error al eliminar';
@@ -200,7 +190,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     });
   }
 
-  // Form submission para registrar
   onSubmit() {
     if (!this.validarFormulario()) {
       this.errorForm = 'Por favor complete todos los campos requeridos';
@@ -216,7 +205,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
         this.mensaje = response.message;
         this.isLoadingForm = false;
         
-        // Recargar la lista y cerrar modal después de 2 segundos
         setTimeout(() => {
           this.cargarJefesDepartamento();
           this.closeModalRegistrar();
@@ -255,7 +243,6 @@ export class GestionarJefesDepartamentoComponent implements OnInit {
     };
   }
 
-  // Helper functions para la tabla
   getEstadoBadgeClass(enabled: boolean): string {
     return enabled 
       ? 'bg-green-100 text-green-800' 

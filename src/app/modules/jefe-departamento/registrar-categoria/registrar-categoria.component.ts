@@ -8,7 +8,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-registrar-categoria',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterModule], // Agregar RouterModule
+  imports: [FormsModule, CommonModule, RouterModule],
   templateUrl: './registrar-categoria.component.html'
 })
 export class RegistrarCategoriaComponent implements OnInit {

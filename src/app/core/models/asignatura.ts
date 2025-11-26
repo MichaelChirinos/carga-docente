@@ -10,5 +10,5 @@ export interface AsignaturaResponse {
     codigo: string;
     nombre: string;
     enabled: boolean;
-  }[]; // Note the array type here for bulk operations
+  }[]; 
 }

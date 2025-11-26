@@ -39,7 +39,7 @@ export const DOCENTE_ROUTES: Routes = [
 },
 {
   path: 'editar-disponibilidad/:id',
-  component: RegistrarDisponibilidadComponent, // ¡El mismo componente!
+  component: RegistrarDisponibilidadComponent,
   canActivate: [roleGuard],
   data: { role: 3 }
 },

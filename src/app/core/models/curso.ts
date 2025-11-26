@@ -52,7 +52,7 @@ export interface CursoData {
   asignatura: {
     idAsignatura: number;
     nombre: string;
-    codigo: string;  // AGREGADO: según JSON
+    codigo: string;
   };
   planDeEstudios: string[];  // CAMBIADO: array de strings
   escuela: {
@@ -74,7 +74,6 @@ export interface CursoResponse {
   data: CursoData;
 }
 
-// Si necesitas también para lista
 export interface CursoListResponse {
   status: number;
   message: string;

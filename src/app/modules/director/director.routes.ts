@@ -38,7 +38,7 @@ export const DIRECTOR_ROUTES: Routes = [
   },
   {
   path: 'asignaciones/carga',
-  component: ListarAsignacionesCargaComponent, // El nuevo componente
+  component: ListarAsignacionesCargaComponent,
   canActivate: [roleGuard],
   data: { role: 2 }
 },
@@ -129,7 +129,7 @@ export const DIRECTOR_ROUTES: Routes = [
     canActivate: [roleGuard],
     data: { role: 2 }
   },
-// director.routes.ts - agregar esta ruta:
+
 {
   path: 'asignaciones/escuela',
   component: ListarAsignacionesEscuelaComponent,

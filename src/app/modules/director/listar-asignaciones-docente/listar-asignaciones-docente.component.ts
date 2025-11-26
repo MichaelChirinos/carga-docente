@@ -196,7 +196,7 @@ export class ListarAsignacionesComponent implements OnInit {
       next: (response: any) => {
         this.asignaciones = response.data || [];
         
-        // Agregar información del docente a cada asignación
+
         const docenteSeleccionado = this.docentes.find(d => d.idDocente === this.idDocenteSeleccionado);
         if (docenteSeleccionado) {
           this.asignaciones = this.asignaciones.map(asignacion => ({

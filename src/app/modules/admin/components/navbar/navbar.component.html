@@ -1,6 +1,5 @@
 <header class="sticky top-0 z-10 bg-white shadow-sm h-16 flex items-center justify-between px-6">
-  <div></div> <!-- Espacio para balance -->
-  
+  <div></div> 
   <div class="flex items-center space-x-4">
     <span class="hidden sm:inline text-sm font-medium text-gray-700">
       {{ authService.getCurrentUser()?.nombre || 'Administrador' }}
@@ -19,7 +18,7 @@
       @if (isMenuOpen) {
       <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
         <a
-          (click)="router.navigate(['/admin/perfil']); isMenuOpen = false"
+          (click)="router.navigate(['/Administrador/perfil']); isMenuOpen = false"
           class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-50 cursor-pointer"
         >
           Mi Perfil

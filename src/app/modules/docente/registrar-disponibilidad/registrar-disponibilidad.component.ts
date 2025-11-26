@@ -44,7 +44,7 @@ export class RegistrarDisponibilidadComponent implements OnInit {
         this.idDisponibilidadEditar = +params['id'];
         this.cargarDatosEdicion();
       } else {
-        this.agregarDisponibilidad(); // Solo agregar inicial si no está editando
+        this.agregarDisponibilidad();
       }
     });
     this.obtenerDocenteId();
@@ -209,8 +209,8 @@ validarHorasEnPunto(): boolean {
     idDocente: this.idDocente,
     idCicloAcademico: formValue.idCicloAcademico,
     diaSemana: disp.diaSemana,
-    horaInicio: `${disp.horaInicio}:00`, // Agregar :00 para formato HH:00:00
-    horaFin: `${disp.horaFin}:00`       // Agregar :00 para formato HH:00:00
+    horaInicio: `${disp.horaInicio}:00`,
+    horaFin: `${disp.horaFin}:00`
   }));
     this.isLoading = true;
 

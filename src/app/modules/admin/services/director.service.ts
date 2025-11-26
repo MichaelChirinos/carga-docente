@@ -340,7 +340,7 @@ actualizarDirector(idDirector: number, directorData: any): Observable<any> {
 insertarAlgoritmo(algoritmo: AlgoritmoRequest): Observable<AlgoritmoResponse> {
     return this.http.post<AlgoritmoResponse>(`${this.apiUrl}/algoritmo/insertar`, algoritmo);
   }
-  // En director.service.ts - Agrega estos métodos
+
 
 registrarCursosMultiples(cursosData: CursoRequest[]): Observable<any> {
   return this.http.post<any>(
@@ -352,8 +352,6 @@ registrarCursosMultiples(cursosData: CursoRequest[]): Observable<any> {
   obtenerAsignacionPorId(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/asignacion/buscar/${id}`);
   }
-
-// En director.service.ts - Agregar estos métodos:
 
 // Obtener asignaciones por carga académica
 obtenerAsignacionesPorCargaAcademica(idCarga: number): Observable<any> {

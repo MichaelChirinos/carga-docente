@@ -44,7 +44,6 @@ export class AlgoritmoFormComponent {
   }
 
   onSubmit(): void {
-    // Marcar todos los campos como touched para mostrar errores
     this.markAllFieldsAsTouched();
     
     if (this.algoritmoForm.valid) {
@@ -85,7 +84,6 @@ export class AlgoritmoFormComponent {
     });
   }
 
-  // Helper para mostrar errores
   hasError(controlName: string, errorType: string): boolean {
     const control = this.algoritmoForm.get(controlName);
     return control ? control.hasError(errorType) && control.touched : false;

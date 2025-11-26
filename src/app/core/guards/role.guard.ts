@@ -11,7 +11,6 @@ export const roleGuard: CanActivateFn = (route) => {
 
   return authService.currentUser$.pipe(
     map(user => {
-      // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
       const hasRole = user?.rol?.idRol === expectedRole;
       return hasRole || router.createUrlTree(['/login']);
     })

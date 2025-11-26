@@ -67,7 +67,7 @@ export const JEFE_DEPARTAMENTO_ROUTES: Routes = [
   },
     {
     path: 'gestionar-docentes',
-    component: ListarDocentesComponent, // Usamos el componente de listado como principal
+    component: ListarDocentesComponent,
     canActivate: [roleGuard],
     data: { role: 4 }
   },

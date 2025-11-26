@@ -1,10 +1,9 @@
-// director.model.ts
 export interface DirectorRequest {
   email: string;
   password: string;
   nombre: string;
   apellido: string;
-  idEscuela: number;  // Cambiado de 'cargo' a 'idEscuela'
+  idEscuela: number;  
 }
 
 export interface UsuarioResponse {

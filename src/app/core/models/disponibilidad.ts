@@ -1,9 +1,9 @@
 export interface DisponibilidadRequest {
   idDocente: number;
-  idCicloAcademico: number;  // CAMBIADO: de idCargaElectiva a idCicloAcademico
+  idCicloAcademico: number;  
   diaSemana: string;
-  horaInicio: string; // Formato "HH:mm"
-  horaFin: string;    // Formato "HH:mm"
+  horaInicio: string; 
+  horaFin: string;    
 }
 
 export interface DisponibilidadResponse {
@@ -16,7 +16,7 @@ export interface DisponibilidadResponse {
       apellido: string;
     };
   };
-  cicloAcademico: {  // CAMBIADO: de cargaElectiva a cicloAcademico
+  cicloAcademico: {  
     idCicloAcademico: number;
     nombre: string;
   };

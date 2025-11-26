@@ -181,7 +181,7 @@ export class GestionarReportesComponent implements OnInit {
     this.isError = isError;
     setTimeout(() => this.message = '', 5000);
   }
-  // En el componente gestionar-reportes.component.ts
+
 formatearFecha(fecha: string): string {
   if (!fecha) return 'N/A';
   return new Date(fecha).toLocaleDateString('es-ES');

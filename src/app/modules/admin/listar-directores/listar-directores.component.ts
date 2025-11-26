@@ -103,7 +103,7 @@ export class ListarDirectoresComponent {
   }
 
   editarDirector(id: number): void {
-    this.router.navigate(['/admin/editar-director', id]);
+    this.router.navigate(['/Administrador/editar-director', id]);
   }
 
   // Cerrar modales

@@ -1,4 +1,3 @@
-// core/models/departamento-academico.model.ts
 export interface DepartamentoAcademicoRequest {
   email: string;
   password: string;

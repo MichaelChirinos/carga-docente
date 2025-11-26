@@ -22,17 +22,14 @@ export class DocenteService {
   obtenerEscuelas(): Observable<EscuelaProfesionalListResponse> {
     return this.http.get<EscuelaProfesionalListResponse>(`${this.apiUrl}/escuela/listar`);
   }
-// Eliminar preferencia
 eliminarPreferencia(idPreferencia: number): Observable<any> {
   return this.http.delete(`${this.apiUrl}/preferencia/eliminar/${idPreferencia}`);
 }
 
-// Obtener preferencias de un docente
 
   registrarDocentesMultiples(docentes: DocenteRequest[]): Observable<any> {
   return this.http.post(`${this.apiUrl}/docente/insertar-all`, docentes);
 }
-// Para obtener todas las preferencias
 obtenerTodasLasPreferencias(): Observable<any> {
   return this.http.get(`${this.apiUrl}/preferencia/listar`);
 }
@@ -45,12 +42,10 @@ getPreferenciasDocente(idDocente: number, idCicloAcademico: number): Observable<
   eliminarDisponibilidad(idDisponibilidad: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/disponibilidad/eliminar/${idDisponibilidad}`);
   }
-// En docente.service.ts
 
 eliminarDocente(id: number): Observable<any> {
   return this.http.delete(`${this.apiUrl}/docente/eliminar/${id}`);
 }
-// Registrar múltiples dedicaciones
 registrarDedicacionesMultiples(dedicaciones: DedicacionRequest[]): Observable<any> {
   return this.http.post(`${this.apiUrl}/dedicacion/insertar-all`, dedicaciones);
 }
@@ -63,20 +58,16 @@ getCiclosAcademicos(): Observable<any> {
 getDisponibilidadesDocentes(idCicloAcademico: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/docente/listar-con-disponibilidades/${idCicloAcademico}`);
 }
-// Actualizar dedicación
 actualizarDedicacion(idDedicacion: number, datos: DedicacionRequest): Observable<any> {
   return this.http.put(`${this.apiUrl}/dedicacion/actualizar/${idDedicacion}`, datos);
 }
 
-// Obtener dedicación por ID
 getDedicacionById(idDedicacion: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/dedicacion/buscar/${idDedicacion}`);
 }
-// Eliminar dedicación
 eliminarDedicacion(idDedicacion: number): Observable<any> {
   return this.http.delete(`${this.apiUrl}/dedicacion/eliminar/${idDedicacion}`);
 }
-// Agregar dedicación individual
 addDedicacion(dedicacion: DedicacionRequest): Observable<any> {
   return this.http.post(`${this.apiUrl}/dedicacion/insertar`, dedicacion);
 }
@@ -88,17 +79,14 @@ registrarCategoriasMultiples(categorias: CategoriaRequest[]): Observable<any> {
   return this.http.post(`${this.apiUrl}/categoria/insertar-all`, categorias);
 }
 
-// Actualizar categoría individual
 actualizarCategoria(idCategoria: number, datos: CategoriaRequest): Observable<any> {
   return this.http.put(`${this.apiUrl}/categoria/actualizar/${idCategoria}`, datos);
 }
 
-// Obtener categoría por ID (si no lo tienes)
 getCategoriaById(idCategoria: number): Observable<Categoria> {
   return this.http.get<Categoria>(`${this.apiUrl}/categoria/buscar/${idCategoria}`);
 }
 
-// Agregar categoría individual (si no lo tienes)
 addCategoria(categoria: CategoriaRequest): Observable<any> {
   return this.http.post(`${this.apiUrl}/categoria/insertar`, categoria);
 }
@@ -143,7 +131,7 @@ actualizarPreferencia(idPreferencia: number, data: PreferenciaRequest): Observab
     data
   );
 }
-getPreferenciaById(id: number): Observable<any> { // Usamos any temporalmente
+getPreferenciaById(id: number): Observable<any> { 
   return this.http.get<any>(
     `${this.apiUrl}/preferencia/buscar/${id}`
   );
@@ -178,7 +166,7 @@ obtenerCiclosAcademicos(): Observable<CicloAcademicoListResponse> {
 registrarPreferenciasMultiples(preferenciasData: PreferenciaMultipleRequest): Observable<PreferenciaMultipleResponse> {
   return this.http.post<PreferenciaMultipleResponse>(
     `${this.apiUrl}/preferencia/insertar-all`,
-    preferenciasData.preferencias // Enviamos directamente el array
+    preferenciasData.preferencias 
   );
 }
 

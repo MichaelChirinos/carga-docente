@@ -1,7 +1,5 @@
-// escuela.model.ts
 export interface EscuelaRequest {
   nombre: string;
-  // Elimina facultad si no se usa
 }
 
 export interface EscuelaResponse {

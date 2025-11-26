@@ -1,7 +1,6 @@
-// En tu modelo de usuario
 export interface Usuario {
   idUsuario: number;
-  rol: {              // ← Agregar esta interfaz
+  rol: {            
     idRol: number;
     nombre: string;
     enabled: boolean;

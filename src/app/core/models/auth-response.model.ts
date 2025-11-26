@@ -6,6 +6,6 @@ export interface AuthResponse {
   data: {
     token: string;
     usuario: Usuario;
-    roles?: any; // Opcional si no lo usas
+    roles?: any; 
   };
 }

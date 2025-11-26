@@ -14,7 +14,6 @@ export class AuthService {
     private router: Router
   ) {}
 
-// En auth.service.ts
 login(email: string, password: string): Observable<any> {
   return this.http.post<any>(`${this.apiUrl}/login`, { email, password }).pipe(
     tap((response) => {
@@ -30,7 +29,6 @@ login(email: string, password: string): Observable<any> {
       console.log('🔍 Usuario:', user);
       console.log('🔍 Rol:', user?.rol);
       
-      // ✅ CORRECCIÓN: El idRol está en user.rol.idRol
       if (!user || !user.rol?.idRol) {
         console.error('❌ Usuario sin rol válido:', user);
         throw new Error('Estructura de usuario inválida - rol no encontrado');
@@ -46,8 +44,6 @@ login(email: string, password: string): Observable<any> {
     map(response => response)
   );
 }
-// En auth.service.ts
-// En auth.service.ts
 public getRolePath(idRol: number): string {
   const routes = {
     1: '/Administrador',
@@ -76,7 +72,6 @@ public getRolePath(idRol: number): string {
     return !!this.getToken();
   }
   
-  // En auth.service.ts
 getCurrentUser() {
   return this.currentUserSubject.value;
 }

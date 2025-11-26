@@ -1,4 +1,3 @@
-// gestionar-logistica.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -13,23 +12,19 @@ import { LogisticaRequest } from '../../../core/models/logistica.model';
   templateUrl: './gestionar-logistica.component.html'
 })
 export class GestionarLogisticaComponent implements OnInit {
-  // Para la lista
   logisticas: any[] = [];
   loading: boolean = true;
   error: string = '';
 
-  // Estados de los modales
   showModalRegistrar: boolean = false;
   showModalDetalles: boolean = false;
   showModalEditar: boolean = false;
   showModalEliminar: boolean = false;
 
-  // Datos seleccionados
   logisticaSeleccionada: any = null;
   logisticaEditando: any = null;
   logisticaEliminando: any = null;
 
-  // Para el modal de registro
   logisticaData: LogisticaRequest = {
     email: '',
     password: '',
@@ -38,13 +33,11 @@ export class GestionarLogisticaComponent implements OnInit {
     cargo: 'logística de escuela'
   };
   
-  // Estados de carga
   isLoadingForm: boolean = false;
   loadingDetalles: boolean = false;
   loadingEdicion: boolean = false;
   loadingEliminacion: boolean = false;
   
-  // Mensajes
   mensaje: string = '';
   errorForm: string = '';
 
@@ -57,7 +50,6 @@ export class GestionarLogisticaComponent implements OnInit {
     this.cargarLogisticas();
   }
 
-  // Métodos para la lista
   cargarLogisticas(): void {
     this.loading = true;
     this.directorService.obtenerLogisticas().subscribe({
@@ -73,7 +65,6 @@ export class GestionarLogisticaComponent implements OnInit {
     });
   }
 
-  // Métodos para el modal de registro
   openModalRegistrar(): void {
     this.showModalRegistrar = true;
     this.mensaje = '';
@@ -102,9 +93,8 @@ export class GestionarLogisticaComponent implements OnInit {
         this.mensaje = response.message;
         this.isLoadingForm = false;
         this.limpiarFormulario();
-        this.cargarLogisticas(); // Recargar la lista
+        this.cargarLogisticas(); 
         
-        // Cerrar modal después de 2 segundos
         setTimeout(() => {
           this.closeModalRegistrar();
         }, 2000);
@@ -117,7 +107,6 @@ export class GestionarLogisticaComponent implements OnInit {
     });
   }
 
-  // Métodos para ver detalles
   verDetalles(logistica: any): void {
     this.loadingDetalles = true;
     this.showModalDetalles = true;
@@ -145,7 +134,6 @@ export class GestionarLogisticaComponent implements OnInit {
     this.logisticaSeleccionada = null;
   }
 
-  // Métodos para editar
   abrirEditar(logistica: any): void {
     this.logisticaEditando = { ...logistica };
     this.showModalEditar = true;
@@ -177,7 +165,7 @@ export class GestionarLogisticaComponent implements OnInit {
     this.directorService.actualizarLogistica(this.logisticaEditando.idLogistica, datosActualizacion).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
-          this.cargarLogisticas(); // Recargar lista
+          this.cargarLogisticas(); 
           this.closeModalEditar();
         } else {
           this.errorForm = response.message || 'Error al actualizar';
@@ -192,7 +180,6 @@ export class GestionarLogisticaComponent implements OnInit {
     });
   }
 
-  // Métodos para eliminar
   abrirEliminar(logistica: any): void {
     this.logisticaEliminando = { ...logistica };
     this.showModalEliminar = true;
@@ -211,7 +198,7 @@ export class GestionarLogisticaComponent implements OnInit {
     this.directorService.eliminarLogistica(this.logisticaEliminando.idLogistica).subscribe({
       next: (response: any) => {
         if (response.status === 200) {
-          this.cargarLogisticas(); // Recargar lista
+          this.cargarLogisticas(); 
           this.closeModalEliminar();
         } else {
           this.errorForm = response.message || 'Error al eliminar';
@@ -226,7 +213,6 @@ export class GestionarLogisticaComponent implements OnInit {
     });
   }
 
-  // Validaciones
   private validarFormulario(): boolean {
     return this.logisticaData.email.trim() !== '' &&
            this.logisticaData.password.trim() !== '' &&
@@ -252,7 +238,7 @@ export class GestionarLogisticaComponent implements OnInit {
     };
   }
 
-  // Método auxiliar para mostrar estado
+
   getEstadoBadgeClass(enabled: boolean): string {
     return enabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   }

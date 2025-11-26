@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-asignacion',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Agregar FormsModule
+  imports: [CommonModule, FormsModule],
   templateUrl: './asignacion.component.html'
 })
 export class AsignacionComponent implements OnInit {

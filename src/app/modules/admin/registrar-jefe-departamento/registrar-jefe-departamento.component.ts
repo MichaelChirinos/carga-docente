@@ -48,7 +48,7 @@ export class RegistrarJefeDepartamentoComponent {
         
         // Opcional: redirigir después de 2 segundos
         setTimeout(() => {
-          this.router.navigate(['/admin/gestionar-jefes-departamento']);
+          this.router.navigate(['/Administrador/gestionar-jefes-departamento']);
         }, 2000);
       },
       error: (err) => {

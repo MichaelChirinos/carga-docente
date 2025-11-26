@@ -111,7 +111,7 @@ export class ListarAsignacionesEscuelaComponent implements OnInit {
   onCicloChange(): void {
     this.cargarCargasAcademicas();
   }
-// Agrega este método antes de calcularTotalHoras
+
 getHorarios(asignacion: any): any[] {
   return asignacion.curso?.horarios || asignacion.curso?.cursoHorario || [];
 }

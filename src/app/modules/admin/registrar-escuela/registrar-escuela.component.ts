@@ -9,7 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-registrar-escuela',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule], // Agregar RouterModule
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './registrar-escuela.component.html'
 })
 export class RegistrarEscuelaComponent {

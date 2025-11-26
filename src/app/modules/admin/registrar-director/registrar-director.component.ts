@@ -21,7 +21,6 @@ export class RegistrarDirectorComponent implements OnInit {
     idEscuela: 0  // Cambiado de 'cargo' a 'idEscuela'
   };
 
-  // Agregar lista de escuelas
   escuelas: any[] = [];
   
   isLoading = false;
@@ -104,7 +103,7 @@ export class RegistrarDirectorComponent implements OnInit {
     this.directorService.registrarDirector(this.directorData).subscribe({
       next: (response: any) => {
         if (response.status === 201) {
-          this.router.navigate(['/admin/listar-directores']); 
+          this.router.navigate(['/Administrador/listar-directores']); 
         } else {
           this.errorMessage = response.message || 'Error al registrar director';
         }
@@ -123,7 +122,7 @@ export class RegistrarDirectorComponent implements OnInit {
       .subscribe({
         next: (response: any) => {
           if (response.status === 200) {
-            this.router.navigate(['/admin/listar-directores']); 
+            this.router.navigate(['/Administrador/listar-directores']); 
           } else {
             this.errorMessage = response.message || 'Error al actualizar director';
           }

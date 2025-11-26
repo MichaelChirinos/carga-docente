@@ -47,7 +47,7 @@ export class RegistrarLogisticaComponent {
         
         // Opcional: redirigir después de 2 segundos
         setTimeout(() => {
-          this.router.navigate(['/admin/listar-logisticas']);
+          this.router.navigate(['/Administrador/listar-logisticas']);
         }, 2000);
       },
       error: (err) => {

@@ -1,16 +1,16 @@
 export interface AulaRequest {
   tipo: string;
-  nombre: string;  // Cambiado de codigo a nombre
+  nombre: string;  
   piso: number;
   capacidad: number;
-  numeroEquipos?: number; // El backend lo maneja como null para TEORIA
+  numeroEquipos?: number; 
   estado: string;
 }
 
 export interface AulaResponse {
   idAula: number;
   tipo: string;
-  nombre: string;  // Cambiado de codigo a nombre
+  nombre: string;  
   piso: number;
   capacidad: number;
   numeroEquipos: number | null;
@@ -18,7 +18,6 @@ export interface AulaResponse {
   enabled: boolean;
 }
 
-// Los demás interfaces y enums se mantienen igual
 
 export interface AulaApiResponse {
   status: number;

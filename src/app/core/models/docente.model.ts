@@ -1,4 +1,3 @@
-// docente.model.ts
 import { Usuario } from './usuario.model';
 
 export interface Dedicacion {
@@ -6,7 +5,7 @@ export interface Dedicacion {
   nombre: string;
   horasTotales: number;
   horasMinLectivas: number;
-  horasMaxLectivas: number;  // FALTABA ESTE CAMPO
+  horasMaxLectivas: number;  
   enabled?: boolean;
 }
 
@@ -21,7 +20,7 @@ export interface DedicacionRequest {
 export interface Categoria {
   idCategoria: number;
   nombre: string;
-  descripcion?: string | null;  // Hacerla opcional y aceptar null
+  descripcion?: string | null;  
   enabled: boolean;
 }
 
@@ -57,7 +56,6 @@ export interface DocenteRequest {
   tienePermisoExceso?: boolean;
 }
 
-// En tu archivo de modelos (puede ser docente.model.ts o uno nuevo)
 
 export interface CursoHorario {
   idCursoHorario: number;
