@@ -1,4 +1,4 @@
-// listar-asignaciones.component.ts - VERSIÓN CORREGIDA
+// listar-asignaciones.component.ts - VERSIÓN CORREGIDA CON CACHE DE HORARIOS
 import { Component, OnInit } from '@angular/core';
 import { DirectorService } from '../../admin/services/director.service';
 import { CommonModule } from '@angular/common';
@@ -47,6 +47,9 @@ export class ListarAsignacionesComponent implements OnInit {
   // Modo de vista
   modoVista: 'filtrado' | 'todas' = 'todas';
 
+  // Cache para horarios
+  horariosCache: Map<number, any[]> = new Map();
+
   constructor(
     private directorService: DirectorService,
     private router: Router
@@ -59,11 +62,10 @@ export class ListarAsignacionesComponent implements OnInit {
   cargarDatosFiltros(): void {
     this.loadingData = true;
 
-    // Cargar docentes - CORREGIDO
+    // Cargar docentes
     this.directorService.obtenerDocentes().subscribe({
       next: (response) => {
         this.docentes = response.data || response || [];
-        console.log('Docentes cargados:', this.docentes); // Debug
         this.loadingData = false;
       },
       error: (err) => {
@@ -128,6 +130,7 @@ export class ListarAsignacionesComponent implements OnInit {
     // Limpiar resultados cuando cambia el ciclo
     this.asignaciones = [];
     this.asignacionesPorDocente = [];
+    this.horariosCache.clear(); // Limpiar cache
   }
 
   // Cargar todas las asignaciones por carga académica
@@ -141,6 +144,7 @@ export class ListarAsignacionesComponent implements OnInit {
     this.loadingTodas = true;
     this.asignacionesPorDocente = [];
     this.asignaciones = [];
+    this.horariosCache.clear(); // Limpiar cache al cargar nuevas
 
     this.directorService.obtenerAsignacionesPorCarga(this.idCargaSeleccionada).subscribe({
       next: (response: any) => {
@@ -157,6 +161,9 @@ export class ListarAsignacionesComponent implements OnInit {
             }
           }))
         );
+        
+        // Cargar horarios en background para todas las asignaciones
+        this.cargarHorariosEnBackground();
         
         this.loadingTodas = false;
         
@@ -176,7 +183,53 @@ export class ListarAsignacionesComponent implements OnInit {
     });
   }
 
-  // CORREGIDO: Usar el endpoint específico para filtrar por docente
+  // Cargar horarios en background para todas las asignaciones
+  cargarHorariosEnBackground(): void {
+    this.asignaciones.forEach(asignacion => {
+      if (asignacion.idAsignacion && !this.getHorarios(asignacion).length) {
+        this.cargarHorariosIndividualEnBackground(asignacion.idAsignacion);
+      }
+    });
+  }
+
+  // Cargar horarios para una asignación específica
+  cargarHorariosIndividualEnBackground(idAsignacion: number): void {
+    this.directorService.obtenerAsignacionPorId(idAsignacion).subscribe({
+      next: (response: any) => {
+        if (response.status === 200 && response.data) {
+          const asignacionDetalle = response.data;
+          
+          // Extraer horarios del detalle
+          const horariosDetalle = asignacionDetalle?.curso?.horarios || 
+                                 asignacionDetalle?.curso?.cursoHorario || 
+                                 asignacionDetalle?.horarios || 
+                                 [];
+          
+          if (horariosDetalle.length > 0) {
+            // Guardar en cache
+            this.horariosCache.set(idAsignacion, horariosDetalle);
+            
+            // Actualizar la asignación en la lista
+            const index = this.asignaciones.findIndex(a => a.idAsignacion === idAsignacion);
+            if (index !== -1) {
+              if (!this.asignaciones[index].curso) {
+                this.asignaciones[index].curso = {};
+              }
+              this.asignaciones[index].curso.horarios = horariosDetalle;
+              
+              // Forzar detección de cambios
+              this.asignaciones = [...this.asignaciones];
+            }
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando horarios en background:', err);
+      }
+    });
+  }
+
+  // Buscar asignaciones por docente
   buscarAsignaciones(): void {
     // Validar que todos los filtros estén seleccionados
     if (!this.idCicloAcademicoSeleccionado || !this.idDocenteSeleccionado || !this.idCargaSeleccionada) {
@@ -187,16 +240,16 @@ export class ListarAsignacionesComponent implements OnInit {
     this.modoVista = 'filtrado';
     this.loading = true;
     this.asignaciones = [];
+    this.horariosCache.clear(); // Limpiar cache
 
-    // CORRECCIÓN: Usar el endpoint específico para obtener asignaciones del docente
     this.directorService.obtenerAsignacionesPorDocenteYCarga(
       this.idCargaSeleccionada,    // idCarga primero
       this.idDocenteSeleccionado   // idDocente segundo
     ).subscribe({
       next: (response: any) => {
         this.asignaciones = response.data || [];
-        
 
+        // Asociar datos del docente
         const docenteSeleccionado = this.docentes.find(d => d.idDocente === this.idDocenteSeleccionado);
         if (docenteSeleccionado) {
           this.asignaciones = this.asignaciones.map(asignacion => ({
@@ -208,6 +261,9 @@ export class ListarAsignacionesComponent implements OnInit {
             }
           }));
         }
+        
+        // Cargar horarios en background
+        this.cargarHorariosEnBackground();
         
         this.loading = false;
         
@@ -223,7 +279,30 @@ export class ListarAsignacionesComponent implements OnInit {
     });
   }
 
-  // Ver detalles de la asignación
+  // Obtener horarios de una asignación (con cache)
+  getHorarios(asignacion: any): any[] {
+    const idAsignacion = asignacion.idAsignacion;
+    
+    // 1. Verificar si tenemos cache
+    if (this.horariosCache.has(idAsignacion)) {
+      return this.horariosCache.get(idAsignacion) || [];
+    }
+    
+    // 2. Buscar en las estructuras comunes
+    const horarios = asignacion?.curso?.horarios || 
+                     asignacion?.curso?.cursoHorario || 
+                     asignacion?.horarios || 
+                     [];
+    
+    // 3. Si hay horarios en la estructura, guardarlos en cache
+    if (horarios.length > 0) {
+      this.horariosCache.set(idAsignacion, horarios);
+    }
+    
+    return horarios;
+  }
+
+  // Ver detalles de la asignación (también actualiza cache)
   verDetalles(asignacion: any): void {
     this.loadingDetalle = true;
     this.mostrarModalDetalle = true;
@@ -233,6 +312,28 @@ export class ListarAsignacionesComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 200 && response.data) {
           this.asignacionSeleccionada = response.data;
+          
+          // Extraer horarios del detalle y guardar en cache
+          const horariosDetalle = this.asignacionSeleccionada?.curso?.horarios || 
+                                 this.asignacionSeleccionada?.curso?.cursoHorario || 
+                                 this.asignacionSeleccionada?.horarios || 
+                                 [];
+          
+          if (horariosDetalle.length > 0) {
+            this.horariosCache.set(asignacion.idAsignacion, horariosDetalle);
+            
+            // Actualizar la asignación en la lista
+            const index = this.asignaciones.findIndex(a => a.idAsignacion === asignacion.idAsignacion);
+            if (index !== -1) {
+              if (!this.asignaciones[index].curso) {
+                this.asignaciones[index].curso = {};
+              }
+              this.asignaciones[index].curso.horarios = horariosDetalle;
+              
+              // Forzar detección de cambios
+              this.asignaciones = [...this.asignaciones];
+            }
+          }
         } else {
           this.error = response.message || 'Asignación no encontrada';
           this.asignacionSeleccionada = null;
@@ -263,11 +364,14 @@ export class ListarAsignacionesComponent implements OnInit {
       next: (response: any) => {
         if (response.status === 200) {
           this.showMessage('Asignación eliminada exitosamente', false);
-          // Eliminar de la lista local y recargar según el modo de vista
+          // Eliminar del cache
+          this.horariosCache.delete(this.asignacionEliminando.idAsignacion);
+          
+          // Recargar según el modo de vista
           if (this.modoVista === 'todas') {
-            this.cargarTodasLasAsignaciones(); // Recargar todas
+            this.cargarTodasLasAsignaciones();
           } else {
-            this.buscarAsignaciones(); // Recargar filtrado
+            this.buscarAsignaciones();
           }
           this.cerrarModalEliminar();
         } else {
@@ -316,7 +420,6 @@ export class ListarAsignacionesComponent implements OnInit {
     return ciclo ? ciclo.nombre : '';
   }
 
-  // CORREGIDO: Acceder correctamente a nombre y apellido
   getDocenteSeleccionado(): string {
     const docente = this.docentes.find(d => d.idDocente === this.idDocenteSeleccionado);
     return docente ? `${docente.usuario?.nombre} ${docente.usuario?.apellido}` : '';
@@ -326,52 +429,79 @@ export class ListarAsignacionesComponent implements OnInit {
     const carga = this.cargasAcademicas.find(c => c.idCarga === this.idCargaSeleccionada);
     return carga ? carga.nombre : '';
   }
-  getHorarios(asignacion: any): any[] {
-  // Esto maneja tanto 'horarios' como 'cursoHorario'
-  return asignacion.curso?.horarios || asignacion.curso?.cursoHorario || [];
-}
 
   // Calcular total de horas por asignación
- calcularTotalHoras(asignacion: any): number {
-  const horarios = this.getHorarios(asignacion);
-  return horarios.reduce((total: number, horario: any) => total + horario.duracionHoras, 0);
-}
+  calcularTotalHoras(asignacion: any): number {
+    const horarios = this.getHorarios(asignacion);
+    if (!horarios || horarios.length === 0) return 0;
+    
+    let total = 0;
+    horarios.forEach((horario: any) => {
+      // Intentar diferentes nombres de propiedad
+      const duracion = horario.duracionHoras || 
+                       horario.duracion_horas || 
+                       horario.duracion || 
+                       horario.duracionTotal ||
+                       0;
+      
+      if (typeof duracion === 'number') {
+        total += duracion;
+      } else if (typeof duracion === 'string') {
+        const num = parseFloat(duracion);
+        if (!isNaN(num)) total += num;
+      }
+    });
+    
+    return total;
+  }
+
   // Calcular total general de horas
   calcularTotalGeneral(): number {
     return this.asignaciones.reduce((total, asignacion) => total + this.calcularTotalHoras(asignacion), 0);
   }
 
   // Calcular total de horas por docente (para vista "todas")
-calcularTotalHorasDocente(docente: any): number {
-  if (!docente.asignaciones) return 0;
-  return docente.asignaciones.reduce((total: number, asignacion: any) => 
-    total + this.calcularTotalHoras(asignacion), 0);
-}
+  calcularTotalHorasDocente(docente: any): number {
+    if (!docente.asignaciones) return 0;
+    return docente.asignaciones.reduce((total: number, asignacion: any) => 
+      total + this.calcularTotalHoras(asignacion), 0);
+  }
 
   // Formatear horarios para display
   formatearHorarios(horarios: any[]): string {
     if (!horarios || horarios.length === 0) return 'Sin horarios';
     
-    return horarios.map(horario => 
-      `${horario.diaSemana} ${horario.horaInicio}-${horario.horaFin} (${horario.tipoSesion})`
-    ).join(', ');
+    const horariosFormateados = horarios.map(horario => {
+      // Extraer información con diferentes nombres de propiedad
+      const dia = horario.diaSemana || horario.dia || '';
+      const horaInicio = horario.horaInicio || horario.hora_inicio || horario.inicio || '';
+      const horaFin = horario.horaFin || horario.hora_fin || horario.fin || '';
+      const tipo = horario.tipoSesion || horario.tipo_sesion || horario.tipo || '';
+      
+      // Formatear según la información disponible
+      if (dia && horaInicio && horaFin) {
+        return `${dia} ${horaInicio}-${horaFin}${tipo ? ` (${tipo})` : ''}`;
+      } else if (dia && tipo) {
+        return `${dia} (${tipo})`;
+      } else if (dia) {
+        return dia;
+      } else {
+        return 'Horario';
+      }
+    });
+    
+    return horariosFormateados.join(', ');
   }
 
-  // Métodos para template - CORREGIDOS
+  // Métodos para template
   getCursoInfo(asignacion: any): string {
     if (!asignacion.curso) return 'N/A';
-    return `${asignacion.curso.asignatura?.nombre} - ${asignacion.curso.grupo || 'Sin grupo'}`;
+    return `${asignacion.curso.asignatura?.nombre || 'Sin asignatura'} - ${asignacion.curso.grupo || 'Sin grupo'}`;
   }
 
   getDocenteInfo(asignacion: any): string {
     if (!asignacion.docente) return 'N/A';
-    return `${asignacion.docente.usuario?.nombre} ${asignacion.docente.usuario?.apellido}`;
-  }
-
-  // CORREGIDO: Acceder correctamente a los datos del docente
-  getDocenteDeAsignacion(asignacion: any): string {
-    if (!asignacion.docente) return 'Sin asignar';
-    return `${asignacion.docente.usuario?.nombre} ${asignacion.docente.usuario?.apellido} (${asignacion.docente.codigo})`;
+    return `${asignacion.docente.usuario?.nombre || ''} ${asignacion.docente.usuario?.apellido || ''}`.trim() || 'N/A';
   }
 
   // Método para obtener el título según el modo de vista

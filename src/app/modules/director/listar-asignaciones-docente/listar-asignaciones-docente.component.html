@@ -89,13 +89,6 @@
       <!-- Botones de acción -->
       <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
         <button
-          (click)="cargarTodasLasAsignaciones()"
-          [disabled]="loadingTodas || !idCicloAcademicoSeleccionado || !idCargaSeleccionada"
-          class="px-6 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors duration-200"
-        >
-          {{ loadingTodas ? 'Cargando...' : 'Ver Todas las Asignaciones' }}
-        </button>
-        <button
           (click)="buscarAsignaciones()"
           [disabled]="loading || !idCicloAcademicoSeleccionado || !idCargaSeleccionada || !idDocenteSeleccionado"
           class="px-6 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200"
@@ -163,9 +156,6 @@
                     <div class="text-sm font-medium text-gray-900">
                       {{asignacion.curso?.asignatura?.nombre}}
                     </div>
-                    <div class="text-sm text-gray-500">
-                      {{asignacion.curso?.asignatura?.codigo || 'N/A'}}
-                    </div>
                   </td>
                   
                   <!-- Plan de Estudios -->
@@ -194,11 +184,12 @@
                   </td>
                   
                   <!-- Horarios -->
-                  <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900 max-w-xs">
-                      {{formatearHorarios(getHorarios(asignacion))}}
-                    </div>
-                  </td>
+                 <!-- En la tabla principal, verifica esta parte: -->
+<td class="px-6 py-4">
+  <div class="text-sm text-gray-900 max-w-xs">
+    {{formatearHorarios(getHorarios(asignacion))}}
+  </div>
+</td>
                   
                   <!-- Total Horas -->
                   <td class="px-6 py-4 whitespace-nowrap">
@@ -381,35 +372,36 @@
               </div>
 
               <!-- Horarios del Curso -->
+<!-- Busca esta sección en el HTML y verifica que esté así: -->
 @if (getHorarios(asignacionSeleccionada).length > 0) {
-                <div class="space-y-4 md:col-span-2">
-                  <h4 class="font-medium text-gray-900 border-b pb-2">Horarios del Curso</h4>
-                  <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-gray-50">
-                        <tr>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Día</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Inicio</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Fin</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Duración</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-200">
-@for (horario of getHorarios(asignacionSeleccionada); track (horario.idHorario || horario.idCursoHorario)) {
-                          <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.tipoSesion}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.diaSemana}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaInicio}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaFin}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.duracionHoras}}h</td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              }
+  <div class="space-y-4 md:col-span-2">
+    <h4 class="font-medium text-gray-900 border-b pb-2">Horarios del Curso</h4>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Día</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Inicio</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Fin</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Duración</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          @for (horario of getHorarios(asignacionSeleccionada); track (horario.idHorario || horario.idCursoHorario || $index)) {
+            <tr>
+              <td class="px-4 py-2 text-sm text-gray-900">{{horario.tipoSesion || horario.tipo}}</td>
+              <td class="px-4 py-2 text-sm text-gray-900">{{horario.diaSemana || horario.dia}}</td>
+              <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaInicio || horario.inicio}}</td>
+              <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaFin || horario.fin}}</td>
+              <td class="px-4 py-2 text-sm text-gray-900">{{horario.duracionHoras || horario.duracion || 0}}h</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}
             </div>
           }
         </div>

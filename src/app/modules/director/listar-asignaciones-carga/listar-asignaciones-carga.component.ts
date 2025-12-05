@@ -1,4 +1,4 @@
-// listar-asignaciones-carga.component.ts
+// listar-asignaciones-carga.component.ts - VERSIÓN CORREGIDA
 import { Component, OnInit } from '@angular/core';
 import { DirectorService } from '../../admin/services/director.service';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,9 @@ export class ListarAsignacionesCargaComponent implements OnInit {
   asignacionSeleccionada: any = null;
   loadingDetalle = false;
   errorDetalle = '';
+
+  // Cache para horarios
+  horariosCache: Map<number, any[]> = new Map();
 
   constructor(private directorService: DirectorService) {}
 
@@ -59,9 +62,29 @@ export class ListarAsignacionesCargaComponent implements OnInit {
       }
     });
   }
-getHorarios(asignacion: any): any[] {
-  return asignacion.curso?.horarios || asignacion.curso?.cursoHorario || [];
-}
+
+  getHorarios(asignacion: any): any[] {
+    const idAsignacion = asignacion.idAsignacion;
+    
+    // 1. Verificar si tenemos cache
+    if (this.horariosCache.has(idAsignacion)) {
+      return this.horariosCache.get(idAsignacion) || [];
+    }
+    
+    // 2. Buscar en las estructuras comunes
+    const horarios = asignacion?.curso?.horarios || 
+                     asignacion?.curso?.cursoHorario || 
+                     asignacion?.horarios || 
+                     [];
+    
+    // 3. Si hay horarios en la estructura, guardarlos en cache
+    if (horarios.length > 0) {
+      this.horariosCache.set(idAsignacion, horarios);
+    }
+    
+    return horarios;
+  }
+
   cargarCargasAcademicas(): void {
     if (!this.idCicloAcademicoSeleccionado) {
       this.cargasAcademicas = [];
@@ -71,6 +94,7 @@ getHorarios(asignacion: any): any[] {
     this.loadingCargas = true;
     this.cargasAcademicas = [];
     this.idCargaSeleccionada = 0;
+    this.horariosCache.clear(); // Limpiar cache
 
     this.directorService.obtenerCargasAcademicasPorCiclo(this.idCicloAcademicoSeleccionado).subscribe({
       next: (response: any) => {
@@ -90,6 +114,9 @@ getHorarios(asignacion: any): any[] {
 
   onCicloChange(): void {
     this.cargarCargasAcademicas();
+    // Limpiar resultados cuando cambia el ciclo
+    this.asignaciones = [];
+    this.horariosCache.clear();
   }
 
   buscarAsignaciones(): void {
@@ -100,10 +127,15 @@ getHorarios(asignacion: any): any[] {
 
     this.loading = true;
     this.asignaciones = [];
+    this.horariosCache.clear(); // Limpiar cache
 
     this.directorService.obtenerAsignacionesPorCargaAcademica(this.idCargaSeleccionada).subscribe({
       next: (response: any) => {
         this.asignaciones = response.data || [];
+        
+        // Cargar horarios en background para todas las asignaciones
+        this.cargarHorariosEnBackground();
+        
         this.loading = false;
         
         if (this.asignaciones.length === 0) {
@@ -120,7 +152,52 @@ getHorarios(asignacion: any): any[] {
     });
   }
 
-  // ... (los demás métodos se mantienen igual)
+  // Cargar horarios en background para todas las asignaciones
+  cargarHorariosEnBackground(): void {
+    this.asignaciones.forEach(asignacion => {
+      if (asignacion.idAsignacion && !this.getHorarios(asignacion).length) {
+        this.cargarHorariosIndividualEnBackground(asignacion.idAsignacion);
+      }
+    });
+  }
+
+  // Cargar horarios para una asignación específica
+  cargarHorariosIndividualEnBackground(idAsignacion: number): void {
+    this.directorService.obtenerAsignacionPorId(idAsignacion).subscribe({
+      next: (response: any) => {
+        if (response.status === 200 && response.data) {
+          const asignacionDetalle = response.data;
+          
+          // Extraer horarios del detalle
+          const horariosDetalle = asignacionDetalle?.curso?.horarios || 
+                                 asignacionDetalle?.curso?.cursoHorario || 
+                                 asignacionDetalle?.horarios || 
+                                 [];
+          
+          if (horariosDetalle.length > 0) {
+            // Guardar en cache
+            this.horariosCache.set(idAsignacion, horariosDetalle);
+            
+            // Actualizar la asignación en la lista
+            const index = this.asignaciones.findIndex(a => a.idAsignacion === idAsignacion);
+            if (index !== -1) {
+              if (!this.asignaciones[index].curso) {
+                this.asignaciones[index].curso = {};
+              }
+              this.asignaciones[index].curso.horarios = horariosDetalle;
+              
+              // Forzar detección de cambios
+              this.asignaciones = [...this.asignaciones];
+            }
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error cargando horarios en background:', err);
+      }
+    });
+  }
+
   verDetalles(asignacion: any): void {
     this.loadingDetalle = true;
     this.mostrarModalDetalle = true;
@@ -130,6 +207,28 @@ getHorarios(asignacion: any): any[] {
       next: (response: any) => {
         if (response.status === 200 && response.data) {
           this.asignacionSeleccionada = response.data;
+          
+          // Extraer horarios del detalle y guardar en cache
+          const horariosDetalle = this.asignacionSeleccionada?.curso?.horarios || 
+                                 this.asignacionSeleccionada?.curso?.cursoHorario || 
+                                 this.asignacionSeleccionada?.horarios || 
+                                 [];
+          
+          if (horariosDetalle.length > 0) {
+            this.horariosCache.set(asignacion.idAsignacion, horariosDetalle);
+            
+            // Actualizar la asignación en la lista
+            const index = this.asignaciones.findIndex(a => a.idAsignacion === asignacion.idAsignacion);
+            if (index !== -1) {
+              if (!this.asignaciones[index].curso) {
+                this.asignaciones[index].curso = {};
+              }
+              this.asignaciones[index].curso.horarios = horariosDetalle;
+              
+              // Forzar detección de cambios
+              this.asignaciones = [...this.asignaciones];
+            }
+          }
         } else {
           this.errorDetalle = response.message || 'Asignación no encontrada';
           this.asignacionSeleccionada = null;
@@ -165,10 +264,29 @@ getHorarios(asignacion: any): any[] {
     return carga ? carga.nombre : '';
   }
 
-calcularTotalHoras(asignacion: any): number {
-  const horarios = this.getHorarios(asignacion);
-  return horarios.reduce((total: number, horario: any) => total + horario.duracionHoras, 0);
-}
+  calcularTotalHoras(asignacion: any): number {
+    const horarios = this.getHorarios(asignacion);
+    if (!horarios || horarios.length === 0) return 0;
+    
+    let total = 0;
+    horarios.forEach((horario: any) => {
+      // Intentar diferentes nombres de propiedad
+      const duracion = horario.duracionHoras || 
+                       horario.duracion_horas || 
+                       horario.duracion || 
+                       horario.duracionTotal ||
+                       0;
+      
+      if (typeof duracion === 'number') {
+        total += duracion;
+      } else if (typeof duracion === 'string') {
+        const num = parseFloat(duracion);
+        if (!isNaN(num)) total += num;
+      }
+    });
+    
+    return total;
+  }
 
   calcularTotalGeneral(): number {
     return this.asignaciones.reduce((total, asignacion) => total + this.calcularTotalHoras(asignacion), 0);
@@ -176,21 +294,38 @@ calcularTotalHoras(asignacion: any): number {
 
   getDocenteInfo(asignacion: any): string {
     if (!asignacion.docente) return 'N/A';
-    return `${asignacion.docente.usuario?.nombre} ${asignacion.docente.usuario?.apellido}`;
+    return `${asignacion.docente.usuario?.nombre || ''} ${asignacion.docente.usuario?.apellido || ''}`.trim() || 'N/A';
   }
 
   getCursoInfo(asignacion: any): string {
     if (!asignacion.curso) return 'N/A';
-    return `${asignacion.curso.asignatura?.nombre} - ${asignacion.curso.grupo || 'Sin grupo'}`;
+    return `${asignacion.curso.asignatura?.nombre || 'Sin asignatura'} - ${asignacion.curso.grupo || 'Sin grupo'}`;
   }
 
-formatearHorarios(horarios: any[]): string {
-  if (!horarios || horarios.length === 0) return 'Sin horarios';
-  
-  return horarios.map(horario => 
-    `${horario.diaSemana} ${horario.horaInicio}-${horario.horaFin} (${horario.tipoSesion})`
-  ).join(', ');
-}
+  formatearHorarios(horarios: any[]): string {
+    if (!horarios || horarios.length === 0) return 'Sin horarios';
+    
+    const horariosFormateados = horarios.map(horario => {
+      // Extraer información con diferentes nombres de propiedad
+      const dia = horario.diaSemana || horario.dia || '';
+      const horaInicio = horario.horaInicio || horario.hora_inicio || horario.inicio || '';
+      const horaFin = horario.horaFin || horario.hora_fin || horario.fin || '';
+      const tipo = horario.tipoSesion || horario.tipo_sesion || horario.tipo || '';
+      
+      // Formatear según la información disponible
+      if (dia && horaInicio && horaFin) {
+        return `${dia} ${horaInicio}-${horaFin}${tipo ? ` (${tipo})` : ''}`;
+      } else if (dia && tipo) {
+        return `${dia} (${tipo})`;
+      } else if (dia) {
+        return dia;
+      } else {
+        return 'Horario';
+      }
+    });
+    
+    return horariosFormateados.join(', ');
+  }
 
   private showMessage(msg: string, isError: boolean): void {
     this.message = msg;

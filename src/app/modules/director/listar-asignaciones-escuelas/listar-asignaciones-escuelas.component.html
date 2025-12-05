@@ -164,9 +164,7 @@
                     <div class="text-sm font-medium text-gray-900">
                       {{asignacion.curso?.asignatura?.nombre}}
                     </div>
-                    <div class="text-sm text-gray-500">
-                      {{asignacion.curso?.codigo || 'N/A'}}
-                    </div>
+                
                   </td>
                   
                   <!-- Grupo -->
@@ -179,7 +177,7 @@
                   <!-- Horarios -->
                   <td class="px-6 py-4">
                     <div class="text-sm text-gray-900 max-w-xs">
-{{formatearHorarios(getHorarios(asignacion))}}
+                      {{formatearHorarios(getHorarios(asignacion))}}
                     </div>
                   </td>
                   
@@ -350,7 +348,7 @@
               </div>
 
               <!-- Horarios del Curso -->
-@if (getHorarios(asignacionSeleccionada).length > 0) {
+              @if (getHorarios(asignacionSeleccionada).length > 0) {
                 <div class="space-y-4 md:col-span-2">
                   <h4 class="font-medium text-gray-900 border-b pb-2">Horarios del Curso</h4>
                   <div class="overflow-x-auto">
@@ -365,13 +363,13 @@
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-200">
-@for (horario of getHorarios(asignacionSeleccionada); track (horario.idHorario || horario.idCursoHorario)) {
+                        @for (horario of getHorarios(asignacionSeleccionada); track (horario.idHorario || horario.idCursoHorario || $index)) {
                           <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.tipoSesion}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.diaSemana}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaInicio}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaFin}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.duracionHoras}}h</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.tipoSesion || horario.tipo}}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.diaSemana || horario.dia}}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaInicio || horario.inicio}}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaFin || horario.fin}}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.duracionHoras || horario.duracion || 0}}h</td>
                           </tr>
                         }
                       </tbody>
