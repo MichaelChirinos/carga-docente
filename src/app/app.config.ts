@@ -1,15 +1,27 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { AuthService } from './core/services/auth.service';
+
+export function initializeAuth(authService: AuthService) {
+  return () => {
+    return Promise.resolve();
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(
-      withInterceptorsFromDi() // Habilita interceptores
+      withInterceptors([jwtInterceptor])
     ),
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeAuth,
+      deps: [AuthService],
+      multi: true
+    }
   ]
 };
