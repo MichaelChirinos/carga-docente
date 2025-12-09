@@ -3,10 +3,11 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, map, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/auth';
+  private apiUrl = `${environment.apiUrl}/auth`;
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   private isBrowser: boolean;

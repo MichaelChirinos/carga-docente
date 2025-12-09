@@ -7,16 +7,17 @@ import { CicloAcademicoListResponse, DisponibilidadApiResponse, DisponibilidadLi
 import { AsignaturaListResponse, PreferenciaListResponse, PreferenciaMultipleRequest, PreferenciaMultipleResponse, PreferenciaRequest, PreferenciaResponse } from '../models/preferencia.model';
 import { PlanEstudioResponse } from '../models/plan-estudio';
 import { EscuelaProfesionalRequest, EscuelaProfesionalResponse, EscuelaProfesionalListResponse } from '../models/escuela-profesional.model';
+import { environment } from '../../../environments/environment'; 
 
 @Injectable({ providedIn: 'root' })
 export class DocenteService {
 
-  private apiUrl = 'http://localhost:8080';
+  private apiUrl = environment.apiUrl; 
 
   constructor(private http: HttpClient) {}
 
   registrarDocente(docenteData: DocenteRequest): Observable<any> {
-    return this.http.post(`${this.apiUrl}/docente/insertar`, docenteData);
+    return this.http.post(`${this.apiUrl}/docente/insertar`, docenteData); 
   }
  
   obtenerEscuelas(): Observable<EscuelaProfesionalListResponse> {
