@@ -6,6 +6,8 @@ import { RegistrarDisponibilidadComponent } from './registrar-disponibilidad/reg
 import { RegistrarPreferenciaComponent } from './registrar-preferencia/registrar-preferencia.component';
 import { ListarDisponibilidadComponent } from './listar-disponibilidad/listar-disponibilidad.component';
 import { ListarPreferenciaComponent } from './listar-preferencia/listar-preferencia.component';
+import { ListarAsignacionesCargaComponent } from '../director/listar-asignaciones-carga/listar-asignaciones-carga.component';
+import { ListarAsignacionesComponent } from './listar-asignaciones-docente/listar-asignaciones-docente.component';
 
 export const DOCENTE_ROUTES: Routes = [
   { 
@@ -52,7 +54,13 @@ export const DOCENTE_ROUTES: Routes = [
   path: 'editar-preferencia/:id',
   component: RegistrarPreferenciaComponent,
   data: { role: 3 }
-}
+},
+ {
+        path: 'listar-asignaciones',
+        component: ListarAsignacionesComponent,
+        canActivate: [roleGuard],
+        data: { role: 3 }
+      },
     ]
   }
 ];

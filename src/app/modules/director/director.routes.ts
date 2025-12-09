@@ -55,18 +55,12 @@ export const DIRECTOR_ROUTES: Routes = [
   data: { role: 2 }
 },
   
-
-
 {
   path: 'gestionar-planes-estudio',
   component: ListarPlanesEstudioComponent,
   canActivate: [roleGuard],
   data: { role: 2 }
 },
-
- // Modificar las rutas existentes
-
-
 
 {
     path: 'registrar-plan-estudio',

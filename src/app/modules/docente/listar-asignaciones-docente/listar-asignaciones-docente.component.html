@@ -1,0 +1,206 @@
+<!-- listar-asignaciones.component.html - VERSIÓN LIMPIA -->
+<div class="p-6 bg-gray-50 min-h-screen">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header simple -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Mis Horarios</h1>
+      <p class="mt-2 text-sm text-gray-600">Consulta tus asignaciones de cursos</p>
+    </div>
+
+    <!-- SOLO CICLO ACADÉMICO -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+      <div class="flex items-center gap-4">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ciclo Académico</label>
+          <select
+            [(ngModel)]="idCicloAcademicoSeleccionado"
+            (change)="onCicloChange()"
+            [disabled]="loadingCiclos"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="0">Seleccione un ciclo</option>
+            <option *ngFor="let ciclo of ciclosAcademicos" [value]="ciclo.idCicloAcademico">
+              {{ ciclo.nombre }}
+            </option>
+          </select>
+        </div>
+        
+      </div>
+    </div>
+
+    <!-- Mensaje informativo -->
+    <div *ngIf="message && !isError" 
+         class="mb-4 px-4 py-3 rounded bg-blue-50 text-blue-700">
+      {{ message }}
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+      <!-- Header de la tabla -->
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-medium text-gray-900">Mis Cursos</h2>
+          <div *ngIf="asignaciones.length > 0" class="text-sm text-gray-700">
+            <span class="font-medium">{{ calcularTotalGeneral() }}</span> horas semanales
+          </div>
+        </div>
+      </div>
+
+      <!-- Cargando -->
+      @if (loading) {
+        <div class="flex justify-center items-center p-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          <p class="ml-4 text-gray-600">Cargando cursos...</p>
+        </div>
+      }
+
+      <!-- Sin asignaciones -->
+      @if (!loading && idCicloAcademicoSeleccionado && asignaciones.length === 0) {
+        <div class="p-12 text-center">
+          <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="mt-2 text-gray-600">No tienes cursos asignados para este ciclo</p>
+        </div>
+      }
+
+      <!-- Tabla de cursos -->
+      @if (!loading && asignaciones.length > 0) {
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Horarios</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Horas/Semana</th>
+                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              @for (asignacion of asignaciones; track asignacion.idAsignacion) {
+                <tr class="hover:bg-gray-50">
+                  <!-- Curso -->
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900">
+                      {{ asignacion.curso?.asignatura?.nombre || 'Curso' }}
+                    </div>
+                    <div class="text-sm text-gray-500">
+                      Grupo {{ asignacion.curso?.grupo || 'N/A' }}
+                    </div>
+                  </td>
+                  
+                  <!-- Horarios -->
+                  <td class="px-4 py-3">
+                    <div class="text-sm text-gray-900">
+                      {{ formatearHorarios(getHorarios(asignacion)) }}
+                    </div>
+                  </td>
+                  
+                  <!-- Horas -->
+                  <td class="px-4 py-3">
+                    <div class="font-medium text-gray-900">
+                      {{ calcularTotalHoras(asignacion) }}h
+                    </div>
+                  </td>
+                  
+                  <!-- Ver detalles -->
+                  <td class="px-4 py-3">
+                    <button
+                      (click)="verDetalles(asignacion)"
+                      class="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                    >
+                      Ver detalles
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Modal de detalles - SIMPLIFICADO -->
+  @if (mostrarModalDetalle) {
+    <div 
+      class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center p-4 z-50"
+      (click)="cerrarModalDetalle()">
+      
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] overflow-hidden"
+           (click)="prevenirCierre($event)">
+        
+        <div class="px-4 py-3 border-b flex justify-between items-center">
+          <h3 class="font-medium text-gray-900">Detalles del Curso</h3>
+          <button (click)="cerrarModalDetalle()" class="text-gray-400 hover:text-gray-600">
+            ✕
+          </button>
+        </div>
+
+        <div class="px-4 py-4 overflow-y-auto">
+          @if (loadingDetalle) {
+            <div class="text-center py-8">
+              <div class="inline-block animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+          }
+
+          @if (!loadingDetalle && asignacionSeleccionada) {
+            <div class="space-y-4">
+              <!-- Información básica -->
+              <div>
+                <h4 class="font-medium text-gray-900 mb-2">{{ asignacionSeleccionada.curso?.asignatura?.nombre }}</h4>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p class="text-gray-500">Código</p>
+                    <p class="text-gray-900">{{ asignacionSeleccionada.curso?.asignatura?.codigo || 'N/A' }}</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-500">Grupo</p>
+                    <p class="text-gray-900">{{ asignacionSeleccionada.curso?.grupo || 'N/A' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Horarios -->
+              @if (getHorarios(asignacionSeleccionada).length > 0) {
+                <div>
+                  <h4 class="font-medium text-gray-900 mb-3">Horarios</h4>
+                  <div class="space-y-2">
+                    @for (horario of getHorarios(asignacionSeleccionada); track $index) {
+                      <div class="text-sm bg-gray-50 p-3 rounded border">
+                        <div class="flex justify-between items-center">
+                          <span class="font-medium">{{ horario.diaSemana || horario.dia }}</span>
+                          <span>{{ horario.duracionHoras || horario.duracion || 0 }}h</span>
+                        </div>
+                        <p class="text-gray-600 mt-1">
+                          {{ horario.horaInicio || horario.inicio }} - {{ horario.horaFin || horario.fin }}
+                        </p>
+                      </div>
+                    }
+                  </div>
+                  
+                  <!-- Total horas -->
+                  <div class="mt-4 pt-3 border-t">
+                    <div class="flex justify-between items-center">
+                      <span class="font-medium text-gray-900">Total semanal</span>
+                      <span class="font-bold text-gray-900">{{ calcularTotalHoras(asignacionSeleccionada) }} horas</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="px-4 py-3 border-t">
+          <button
+            (click)="cerrarModalDetalle()"
+            class="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
