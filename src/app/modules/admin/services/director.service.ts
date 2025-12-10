@@ -402,15 +402,54 @@ obtenerResultadoPorCarga(idCarga: number): Observable<any> {
   return this.http.get(`${this.apiUrl}/resultado/buscar-por-carga/${idCarga}`);
 }
 
-exportarReportePdfCargaElectiva(idCarga: number): Observable<any> {
+exportarReporteExcelCargaElectiva(idCarga: number): Observable<Blob> {
   return this.http.post(`${this.apiUrl}/reporte/exportar-pdf/carga-electiva-por-docente/${idCarga}`, {}, {
     responseType: 'blob'
   });
 }
 
-exportarReporteExcelCargaElectiva(idCarga: number): Observable<any> {
-  return this.http.post(`${this.apiUrl}/reporte/exportar-excel/carga-electiva-por-docente/${idCarga}`, {}, {
+exportarReportePdfCargaElectiva(idCarga: number): Observable<Blob> {
+  return this.http.post(`${this.apiUrl}/reporte/exportar-pdf/carga-electiva-por-docente/${idCarga}`, {}, {
     responseType: 'blob'
   });
+}
+exportarReportePdfCursosEscuela(idCicloAcademico: number, idCarga: number, idEscuela: number): Observable<Blob> {
+  return this.http.post(
+    `${this.apiUrl}/reporte/exportar-pdf/listar-cursos-agrupado/${idCicloAcademico}/${idCarga}/${idEscuela}`, 
+    {}, 
+    {
+      responseType: 'blob'
+    }
+  );
+}
+exportarReportePdfCursosAgrupados(idCicloAcademico: number, idCarga: number): Observable<Blob> {
+  return this.http.post(`${this.apiUrl}/reporte/exportar-pdf/listar-cursos-agrupado/${idCicloAcademico}/${idCarga}`, {}, {
+    responseType: 'blob'
+  });
+}
+obtenerCursosAgrupadosPorCarga(idCicloAcademico: number, idCarga: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/carga/listar-cursos-agrupado/${idCicloAcademico}/${idCarga}`);
+}
+
+obtenerCursosAgrupadosPorCargaYEscuela(idCicloAcademico: number, idCarga: number, idEscuela: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/carga/listar-cursos-escuela-agrupado/${idCicloAcademico}/${idCarga}/${idEscuela}`);
+}
+exportarReporteExcelCursosAgrupados(idCicloAcademico: number, idCarga: number): Observable<Blob> {
+  return this.http.post(
+    `${this.apiUrl}/reporte/exportar-excel/listar-cursos-agrupado/${idCicloAcademico}/${idCarga}`, 
+    {}, 
+    {
+      responseType: 'blob'
+    }
+  );
+}
+exportarReporteExcelCursosEscuela(idCicloAcademico: number, idCarga: number, idEscuela: number): Observable<Blob> {
+  return this.http.post(
+    `${this.apiUrl}/reporte/exportar-excel/listar-cursos-agrupado/${idCicloAcademico}/${idCarga}/${idEscuela}`, 
+    {}, 
+    {
+      responseType: 'blob'
+    }
+  );
 }
 }

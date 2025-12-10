@@ -1,11 +1,11 @@
-<!-- listar-asignaciones-escuela.component.html -->
+<!-- listar-cursos-escuela-agrupado.component.html -->
 <div class="p-6 bg-gray-50 min-h-screen">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Asignaciones por Escuela</h1>
-        <p class="mt-2 text-sm text-gray-600">Consulta las asignaciones filtradas por escuela y carga académica</p>
+        <h1 class="text-3xl font-bold text-gray-900">Cursos Agrupados por Asignatura (Por Escuela)</h1>
+        <p class="mt-2 text-sm text-gray-600">Consulta todos los cursos agrupados por asignatura filtrados por escuela</p>
       </div>
       <a 
         routerLink="/Departamento Academico/asignaciones"
@@ -14,7 +14,7 @@
         <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
         </svg>
-        Volver a Asignaciones
+        Volver
       </a>
     </div>
 
@@ -22,7 +22,7 @@
     <div class="bg-white shadow rounded-lg p-6 mb-6">
       <h2 class="text-lg font-medium text-gray-900 mb-4">Filtros de Búsqueda</h2>
       
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <!-- Ciclo Académico -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Ciclo Académico *</label>
@@ -70,327 +70,178 @@
             </option>
           </select>
         </div>
-
-        <!-- Información resumen -->
-        <div class="flex items-end">
-          <div class="w-full p-3 bg-blue-50 rounded-md border border-blue-200">
-            <p class="text-sm text-blue-700">
-              <span class="font-medium">Ciclo:</span> {{ getCicloSeleccionado() || 'No seleccionado' }}
-            </p>
-            <p class="text-sm text-blue-600 mt-1">
-              <span class="font-medium">Escuela:</span> {{ getEscuelaSeleccionada() || 'No seleccionada' }}
-            </p>
-          </div>
-        </div>
       </div>
 
       <!-- Botón de búsqueda -->
       <div class="flex justify-end">
         <button
-          (click)="buscarAsignaciones()"
+          (click)="buscarCursosAgrupadosPorEscuela()"
           [disabled]="loading || !idCicloAcademicoSeleccionado || !idCargaSeleccionada || !idEscuelaSeleccionada"
-          class="px-6 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200"
+          class="px-6 py-3 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200"
         >
-          {{ loading ? 'Buscando...' : 'Buscar Asignaciones' }}
+          <span class="flex items-center">
+            @if (loading) {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            }
+            {{ loading ? 'Buscando...' : 'Buscar' }}
+          </span>
         </button>
       </div>
     </div>
 
     <!-- Mensajes -->
-    <div *ngIf="message" 
-         class="mb-4 px-4 py-3 rounded shadow-lg"
-         [class.bg-red-100]="isError"
-         [class.bg-green-100]="!isError"
-         [class.text-red-700]="isError"
-         [class.text-green-700]="!isError">
-      {{ message }}
-    </div>
+    @if (message) {
+      <div class="mb-4 px-4 py-3 rounded shadow-lg"
+           [class.bg-red-100]="isError"
+           [class.bg-green-100]="!isError"
+           [class.text-red-700]="isError"
+           [class.text-green-700]="!isError">
+        {{ message }}
+      </div>
+    }
 
-    <!-- Resultados -->
+    <!-- Spinner de carga -->
     @if (loading) {
       <div class="flex justify-center items-center p-12 bg-white rounded-lg shadow">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    } @else if (asignaciones.length > 0) {
-      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <!-- Header de resultados -->
-        <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <div>
-              <h3 class="text-lg font-medium text-gray-900">
-                Escuela: {{ getEscuelaSeleccionada() }}
-              </h3>
-              <p class="text-sm text-gray-600">
-                Ciclo: {{ getCicloSeleccionado() }} - Carga: {{ getCargaSeleccionada() }} - {{ asignaciones.length }} asignaciones encontradas
-              </p>
-            </div>
-            <div class="mt-2 sm:mt-0">
-              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                Total: {{calcularTotalGeneral()}} horas
-              </span>
-            </div>
-          </div>
+        <div class="text-center">
+          <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p class="mt-4 text-gray-600">Cargando cursos agrupados...</p>
         </div>
+      </div>
+    }
 
-        <!-- Lista de asignaciones -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Docente</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asignatura</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grupo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horarios</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Horas</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              @for (asignacion of asignaciones; track asignacion.idAsignacion) {
-                <tr class="hover:bg-gray-50">
-                  <!-- Docente -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{getDocenteInfo(asignacion)}}
-                    </div>
-                    <div class="text-sm text-gray-500">
-                      {{asignacion.docente?.codigo || 'N/A'}}
-                    </div>
-                  </td>
-                  
-                  <!-- Asignatura -->
-                  <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{asignacion.curso?.asignatura?.nombre}}
-                    </div>
-                
-                  </td>
-                  
-                  <!-- Grupo -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">
-                      {{asignacion.curso?.grupo || 'N/A'}}
-                    </div>
-                  </td>
-                  
-                  <!-- Horarios -->
-                  <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900 max-w-xs">
-                      {{formatearHorarios(getHorarios(asignacion))}}
-                    </div>
-                  </td>
-                  
-                  <!-- Total Horas -->
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">
-                      {{calcularTotalHoras(asignacion)}} horas
-                    </div>
-                  </td>
-                  
-                  <!-- Estado -->
-                  <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <span 
-                      class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-                      [class.bg-green-100]="asignacion.enabled"
-                      [class.text-green-800]="asignacion.enabled"
-                      [class.bg-red-100]="!asignacion.enabled"
-                      [class.text-red-800]="!asignacion.enabled"
-                    >
-                      {{asignacion.enabled ? 'Activo' : 'Inactivo'}}
-                    </span>
-                  </td>
-                  
-                  <!-- Acciones -->
-                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      (click)="verDetalles(asignacion)"
-                      class="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                      title="Ver detalles"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    } @else if (idCicloAcademicoSeleccionado && idCargaSeleccionada && idEscuelaSeleccionada && !loading) {
+    <!-- Mensaje cuando no hay datos -->
+    @if (!loading && idCicloAcademicoSeleccionado && idCargaSeleccionada && idEscuelaSeleccionada && cursosAgrupados.length === 0) {
       <div class="bg-white shadow rounded-lg p-12 text-center">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No se encontraron asignaciones</h3>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No se encontraron cursos</h3>
         <p class="mt-1 text-sm text-gray-500">
-          No hay asignaciones registradas para la escuela y carga académica seleccionadas.
+          No hay cursos registrados para la escuela y carga académica seleccionadas.
         </p>
       </div>
     }
-  </div>
 
-  <!-- Modal de Detalles -->
-  @if (mostrarModalDetalle) {
-    <div 
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      (click)="cerrarModalDetalle()"
-    >
-      <div 
-        class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
-        (click)="prevenirCierre($event)"
-      >
-        <!-- Header del modal -->
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-          <h3 class="text-lg font-semibold text-gray-900">Detalles de la Asignación</h3>
-          <button 
-            (click)="cerrarModalDetalle()"
-            class="text-gray-400 hover:text-gray-500 transition-colors duration-200"
-          >
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Contenido del modal -->
-        <div class="px-6 py-4 overflow-y-auto">
-          @if (loadingDetalle) {
-            <div class="flex justify-center items-center py-8">
-              <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+    <!-- Sección de Cursos Agrupados -->
+    @if (cursosAgrupados.length > 0 && !loading) {
+      <div class="mt-8">
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+          <!-- Encabezado informativo -->
+          <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div>
+              <h3 class="text-lg font-medium text-gray-900">
+                Cursos 
+              </h3>
+              
             </div>
-          } @else if (errorDetalle) {
-            <div class="bg-red-50 border border-red-200 rounded-md p-4">
-              <p class="text-sm text-red-700">{{errorDetalle}}</p>
-            </div>
-          } @else if (asignacionSeleccionada) {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Información General -->
-              <div class="space-y-4">
-                <h4 class="font-medium text-gray-900 border-b pb-2">Información General</h4>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-500 mb-1">ID Asignación</label>
-                  <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.idAsignacion}}</p>
-                </div>
+          </div>
 
-                <div>
-                  <label class="block text-sm font-medium text-gray-500 mb-1">Fecha de Creación</label>
-                  <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.createdAt}}</p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-500 mb-1">Estado</label>
-                  <span 
-                    class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full"
-                    [class.bg-green-100]="asignacionSeleccionada.enabled"
-                    [class.text-green-800]="asignacionSeleccionada.enabled"
-                    [class.bg-red-100]="!asignacionSeleccionada.enabled"
-                    [class.text-red-800]="!asignacionSeleccionada.enabled"
-                  >
-                    {{asignacionSeleccionada.enabled ? 'Activo' : 'Inactivo'}}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Información del Docente -->
-              <div class="space-y-4">
-                <h4 class="font-medium text-gray-900 border-b pb-2">Docente</h4>
-                
-                <div>
-                  <label class="block text-sm font-medium text-gray-500 mb-1">Nombre</label>
-                  <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">
-                    {{asignacionSeleccionada.docente?.usuario?.nombre}} {{asignacionSeleccionada.docente?.usuario?.apellido}}
-                  </p>
-                </div>
-
-                <div>
-                  <label class="block text-sm font-medium text-gray-500 mb-1">Código</label>
-                  <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.docente?.codigo}}</p>
-                </div>
-              </div>
-
-              <!-- Información del Curso -->
-              <div class="space-y-4 md:col-span-2">
-                <h4 class="font-medium text-gray-900 border-b pb-2">Curso</h4>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Lista de asignaturas -->
+          <div class="p-6">
+            @for (asignatura of getTodasAsignaturas(); track asignatura.codigo; let i = $index) {
+              <div class="mb-6 last:mb-0 border border-gray-200 rounded-lg overflow-hidden hover:border-blue-300 transition-colors duration-200">
+                <!-- Encabezado de asignatura -->
+                <div 
+                  class="px-4 py-3 bg-blue-50 border-b border-blue-100 flex justify-between items-center cursor-pointer hover:bg-blue-100 transition-colors duration-200"
+                  (click)="toggleAsignatura(i)"
+                >
                   <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Asignatura</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.curso?.asignatura?.nombre}}</p>
+                    <h4 class="font-medium text-gray-900">{{ asignatura.nombre }}</h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                      Ciclo {{ asignatura.ciclo }}
+                    </p>
+                    <p class="text-sm text-gray-600">
+                      Código: {{ asignatura.codigo }} • {{ asignatura.cursos?.length || 0 }} grupos disponibles
+                    </p>
                   </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Grupo</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.curso?.grupo}}</p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Código</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.curso?.codigo}}</p>
+                  <div class="flex items-center">
+                    <span class="text-sm text-blue-600 font-medium">
+                      {{ isAsignaturaExpandida(i) ? 'Ocultar grupos' : 'Ver grupos' }}
+                    </span>
+                    <svg 
+                      class="h-5 w-5 text-gray-400 ml-2 transform transition-transform"
+                      [class.rotate-180]="isAsignaturaExpandida(i)"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Escuela</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.curso?.escuela?.nombre}}</p>
-                  </div>
-
-                  <div>
-                    <label class="block text-sm font-medium text-gray-500 mb-1">Plan de Estudios</label>
-                    <p class="text-sm text-gray-900 bg-gray-50 px-3 py-2 rounded border">{{asignacionSeleccionada.curso?.planDeEstudio?.nombre}}</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Horarios del Curso -->
-              @if (getHorarios(asignacionSeleccionada).length > 0) {
-                <div class="space-y-4 md:col-span-2">
-                  <h4 class="font-medium text-gray-900 border-b pb-2">Horarios del Curso</h4>
-                  <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                      <thead class="bg-gray-50">
-                        <tr>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Día</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Inicio</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Hora Fin</th>
-                          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Duración</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-200">
-                        @for (horario of getHorarios(asignacionSeleccionada); track (horario.idHorario || horario.idCursoHorario || $index)) {
+                <!-- Cursos de la asignatura (expandido) -->
+                @if (isAsignaturaExpandida(i) && asignatura.cursos?.length > 0) {
+                  <div class="p-4 bg-white">
+                    <div class="overflow-x-auto">
+                      <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                           <tr>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.tipoSesion || horario.tipo}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.diaSemana || horario.dia}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaInicio || horario.inicio}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.horaFin || horario.fin}}</td>
-                            <td class="px-4 py-2 text-sm text-gray-900">{{horario.duracionHoras || horario.duracion || 0}}h</td>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grupo</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código Curso</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Docente</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horarios</th>
+                            <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Escuela</th>
                           </tr>
-                        }
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                          @for (curso of asignatura.cursos; track curso.idCurso) {
+                            <tr class="hover:bg-gray-50 transition-colors duration-150">
+                              <td class="px-3 py-3 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  {{ curso.grupo || 'N/A' }}
+                                </span>
+                              </td>
+                              <td class="px-3 py-3 whitespace-nowrap">
+                                <div class="text-sm font-mono text-gray-900">{{ curso.codigoCurso || '' }}</div>
+                              </td>
+                              <td class="px-3 py-3">
+                                <div class="text-sm">
+                                  @if (curso.docente?.trim()) {
+                                    <span class="text-gray-900">{{ curso.docente }}</span>
+                                    @if (curso.idDocente) {
+                                      <span class="block text-xs text-gray-500">ID: {{ curso.idDocente }}</span>
+                                    }
+                                  } @else {
+                                    <span class="text-red-500 italic">Sin asignar</span>
+                                  }
+                                </div>
+                              </td>
+                              <td class="px-3 py-3">
+                                @if (curso.horarios?.length > 0) {
+                                  <div class="text-sm text-gray-900 space-y-1">
+                                    @for (horario of curso.horarios; track $index) {
+                                      <div>{{ formatearHorario(horario) }}</div>
+                                    }
+                                  </div>
+                                } @else {
+                                  <span class="text-gray-400 italic">Sin horarios</span>
+                                }
+                              </td>
+                              <td class="px-3 py-3">
+                                <div class="text-sm text-gray-900">
+                                  {{ curso.escuela || 'N/A' }}
+                                </div>
+                                @if (curso.planDeEstudios) {
+                                  <div class="text-xs text-gray-500">
+                                    Plan: {{ curso.planDeEstudios.join(', ') }}
+                                  </div>
+                                }
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-
-        <!-- Footer del modal -->
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-          <button
-            (click)="cerrarModalDetalle()"
-            class="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          >
-            Cerrar
-          </button>
+                }
+              </div>
+            }
+          </div>
         </div>
       </div>
-    </div>
-  }
+    }
+  </div>
 </div>

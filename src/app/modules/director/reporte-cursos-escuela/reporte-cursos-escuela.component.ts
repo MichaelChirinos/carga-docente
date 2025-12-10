@@ -1,4 +1,4 @@
-// gestionar-reportes.component.ts - VERSIÓN ACTUALIZADA
+// reporte-cursos-escuela.component.ts - VERSIÓN SIMPLIFICADA
 import { Component, OnInit } from '@angular/core';
 import { DirectorService } from '../../admin/services/director.service';
 import { CommonModule } from '@angular/common';
@@ -6,23 +6,24 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-gestionar-reportes',
+  selector: 'app-reporte-cursos-escuela',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './gestionar-reportes.component.html'
+  templateUrl: './reporte-cursos-escuela.component.html'
 })
-export class GestionarReportesComponent implements OnInit {
+export class ReporteCursosEscuelaComponent implements OnInit {
   ciclosAcademicos: any[] = [];
+  escuelas: any[] = [];
   cargasAcademicas: any[] = [];
   idCicloAcademicoSeleccionado: number = 0;
+  idEscuelaSeleccionada: number = 0;
   idCargaSeleccionada: number = 0;
   
-  // Estados
   loadingCiclos = false;
+  loadingEscuelas = false;
   loadingCargas = false;
   loadingReporte = false;
   
-  // Mensajes
   message = '';
   isError = false;
 
@@ -30,6 +31,7 @@ export class GestionarReportesComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarCiclosAcademicos();
+    this.cargarEscuelas();
   }
 
   cargarCiclosAcademicos(): void {
@@ -39,7 +41,6 @@ export class GestionarReportesComponent implements OnInit {
         const ciclos = response.data || response || [];
         this.ciclosAcademicos = ciclos;
         
-        // Seleccionar ciclo activo por defecto
         const cicloActivo = ciclos.find((ciclo: any) => ciclo.enabled);
         if (cicloActivo) {
           this.idCicloAcademicoSeleccionado = cicloActivo.idCicloAcademico;
@@ -54,6 +55,23 @@ export class GestionarReportesComponent implements OnInit {
       error: (err) => {
         this.showMessage('Error al cargar ciclos académicos', true);
         this.loadingCiclos = false;
+      }
+    });
+  }
+
+  cargarEscuelas(): void {
+    this.loadingEscuelas = true;
+    this.directorService.obtenerEscuelas().subscribe({
+      next: (response: any) => {
+        this.escuelas = response.data || response || [];
+        if (this.escuelas.length > 0) {
+          this.idEscuelaSeleccionada = this.escuelas[0].idEscuela;
+        }
+        this.loadingEscuelas = false;
+      },
+      error: (err) => {
+        this.showMessage('Error al cargar escuelas', true);
+        this.loadingEscuelas = false;
       }
     });
   }
@@ -84,75 +102,54 @@ export class GestionarReportesComponent implements OnInit {
     this.cargarCargasAcademicas();
   }
 
-  // PDF de Cursos Agrupados
-  exportarPdfCursosAgrupados(): void {
-    if (!this.idCicloAcademicoSeleccionado || !this.idCargaSeleccionada) {
-      this.showMessage('Por favor seleccione un ciclo académico y una carga académica', true);
+  // PDF de Cursos por Escuela
+  exportarPdfCursosEscuela(): void {
+    if (!this.idCicloAcademicoSeleccionado || !this.idCargaSeleccionada || !this.idEscuelaSeleccionada) {
+      this.showMessage('Por favor seleccione un ciclo académico, una carga académica y una escuela', true);
       return;
     }
 
     this.loadingReporte = true;
-    this.directorService.exportarReportePdfCursosAgrupados(
+    this.directorService.exportarReportePdfCursosEscuela(
       this.idCicloAcademicoSeleccionado,
-      this.idCargaSeleccionada
+      this.idCargaSeleccionada,
+      this.idEscuelaSeleccionada
     ).subscribe({
       next: (blob: Blob) => {
         const fecha = new Date().toISOString().split('T')[0];
-        this.descargarArchivo(blob, 'application/pdf', `cursos-agrupados-${this.idCicloAcademicoSeleccionado}-${this.idCargaSeleccionada}-${fecha}.pdf`);
+        this.descargarArchivo(blob, 'application/pdf', `cursos-escuela-${this.idEscuelaSeleccionada}-${fecha}.pdf`);
         this.loadingReporte = false;
-        this.showMessage('Reporte PDF de cursos agrupados generado exitosamente', false);
+        this.showMessage('Reporte PDF generado exitosamente', false);
       },
       error: (err) => {
-        this.showMessage('Error al generar el reporte PDF de cursos agrupados', true);
+        this.showMessage('Error al generar el reporte PDF', true);
         this.loadingReporte = false;
-        console.error('Error exportando PDF cursos agrupados:', err);
       }
     });
   }
 
-  // NUEVO: Excel de Cursos Agrupados
-  exportarExcelCursosAgrupados(): void {
-    if (!this.idCicloAcademicoSeleccionado || !this.idCargaSeleccionada) {
-      this.showMessage('Por favor seleccione un ciclo académico y una carga académica', true);
+  // Excel de Cursos por Escuela
+  exportarExcelCursosEscuela(): void {
+    if (!this.idCicloAcademicoSeleccionado || !this.idCargaSeleccionada || !this.idEscuelaSeleccionada) {
+      this.showMessage('Por favor seleccione un ciclo académico, una carga académica y una escuela', true);
       return;
     }
 
     this.loadingReporte = true;
-    this.directorService.exportarReporteExcelCursosAgrupados(
+    this.directorService.exportarReporteExcelCursosEscuela(
       this.idCicloAcademicoSeleccionado,
-      this.idCargaSeleccionada
+      this.idCargaSeleccionada,
+      this.idEscuelaSeleccionada
     ).subscribe({
       next: (blob: Blob) => {
         const fecha = new Date().toISOString().split('T')[0];
-        this.descargarArchivo(blob, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', `cursos-agrupados-${this.idCicloAcademicoSeleccionado}-${this.idCargaSeleccionada}-${fecha}.xlsx`);
+        this.descargarArchivo(blob, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+          `cursos-escuela-${this.idEscuelaSeleccionada}-${fecha}.xlsx`);
         this.loadingReporte = false;
-        this.showMessage('Reporte Excel de cursos agrupados generado exitosamente', false);
+        this.showMessage('Reporte Excel generado exitosamente', false);
       },
       error: (err) => {
-        this.showMessage('Error al generar el reporte Excel de cursos agrupados', true);
-        this.loadingReporte = false;
-        console.error('Error exportando Excel cursos agrupados:', err);
-      }
-    });
-  }
-
-  // Excel de Carga Electiva (mantener por si acaso)
-  exportarExcelCargaElectiva(): void {
-    if (!this.idCargaSeleccionada) {
-      this.showMessage('Por favor seleccione una carga académica', true);
-      return;
-    }
-
-    this.loadingReporte = true;
-    this.directorService.exportarReporteExcelCargaElectiva(this.idCargaSeleccionada).subscribe({
-      next: (blob: Blob) => {
-        const fecha = new Date().toISOString().split('T')[0];
-        this.descargarArchivo(blob, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', `carga-electiva-${this.idCargaSeleccionada}-${fecha}.xlsx`);
-        this.loadingReporte = false;
-        this.showMessage('Reporte Excel de carga electiva generado exitosamente', false);
-      },
-      error: (err) => {
-        this.showMessage('Error al generar el reporte Excel de carga electiva', true);
+        this.showMessage('Error al generar el reporte Excel', true);
         this.loadingReporte = false;
       }
     });
@@ -181,14 +178,14 @@ export class GestionarReportesComponent implements OnInit {
     return carga ? `Carga ${carga.idCarga}` : '';
   }
 
+  getEscuelaSeleccionada(): string {
+    const escuela = this.escuelas.find(e => e.idEscuela === this.idEscuelaSeleccionada);
+    return escuela ? escuela.nombre : '';
+  }
+
   private showMessage(msg: string, isError: boolean): void {
     this.message = msg;
     this.isError = isError;
     setTimeout(() => this.message = '', 5000);
-  }
-
-  formatearFecha(fecha: string): string {
-    if (!fecha) return 'N/A';
-    return new Date(fecha).toLocaleDateString('es-ES');
   }
 }

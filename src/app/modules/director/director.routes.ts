@@ -15,9 +15,10 @@ import { ListarAsignacionesComponent } from './listar-asignaciones-docente/lista
 import { GestionarHorariosComponent } from './gestionar-horarios/gestionar-horarios.component';
 import { RegistrarAsignacionComponent } from './registrar-asignacion/registrar-asignacion.component';
 import { ListarAsignacionesCargaComponent } from './listar-asignaciones-carga/listar-asignaciones-carga.component';
-import { ListarAsignacionesEscuelaComponent } from './listar-asignaciones-escuelas/listar-asignaciones-escuelas.component';
+import { ListarCursosEscuelaAgrupadoComponent } from './listar-asignaciones-escuelas/listar-asignaciones-escuelas.component';
 import { GestionarCargasComponent } from './gestionar-cargas/gestionar-cargas.component';
 import { GestionarReportesComponent } from './gestionar-reportes/gestionar-reportes.component';
+import { ReporteCursosEscuelaComponent } from './reporte-cursos-escuela/reporte-cursos-escuela.component';
 
 export const DIRECTOR_ROUTES: Routes = [
   { 
@@ -126,7 +127,7 @@ export const DIRECTOR_ROUTES: Routes = [
 
 {
   path: 'asignaciones/escuela',
-  component: ListarAsignacionesEscuelaComponent,
+  component: ListarCursosEscuelaAgrupadoComponent,
   canActivate: [roleGuard],
   data: { role: 2 }
 },
@@ -144,6 +145,12 @@ export const DIRECTOR_ROUTES: Routes = [
       {
         path: 'generar-reportes',
         component: GestionarReportesComponent,
+        canActivate: [roleGuard],
+        data: { role: 2 }
+      },
+      {
+        path: 'reporte-cursos-escuela',
+        component : ReporteCursosEscuelaComponent,
         canActivate: [roleGuard],
         data: { role: 2 }
       }

@@ -1,14 +1,14 @@
-<!-- gestionar-reportes.component.html - VERSIÓN ACTUALIZADA -->
+<!-- reporte-cursos-escuela.component.html - VERSIÓN SIMPLIFICADA -->
 <div class="p-6 bg-gray-50 min-h-screen">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Generación de Reportes</h1>
-        <p class="mt-2 text-sm text-gray-600">Genera reportes en PDF y Excel de cursos agrupados</p>
+        <h1 class="text-3xl font-bold text-gray-900">Reporte de Cursos por Escuela</h1>
+        <p class="mt-2 text-sm text-gray-600">Genera reportes en PDF y Excel de cursos agrupados por escuela</p>
       </div>
       <a 
-        routerLink="/Departamento Academico/asignacion"
+        routerLink="/Departamento Academico/reportes"
         class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
       >
         <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -20,9 +20,9 @@
 
     <!-- Filtros -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">Selección de Carga Académica</h2>
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Filtros</h2>
       
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Ciclo Académico -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Ciclo Académico</label>
@@ -51,21 +51,24 @@
               {{ loadingCargas ? 'Cargando...' : (cargasAcademicas.length === 0 ? 'No hay cargas' : 'Seleccione una carga') }}
             </option>
             <option *ngFor="let carga of cargasAcademicas" [value]="carga.idCarga">
-              Carga {{ carga.idCarga }} - {{ formatearFecha(carga.createdAt) }}
+              Carga {{ carga.idCarga }}
             </option>
           </select>
         </div>
 
-        <!-- Información del ciclo -->
-        <div class="flex items-end">
-          <div class="w-full p-3 bg-blue-50 rounded-md border border-blue-200">
-            <p class="text-sm text-blue-700">
-              <span class="font-medium">Ciclo:</span> {{ getCicloSeleccionado() || 'No seleccionado' }}
-            </p>
-            <p class="text-sm text-blue-600 mt-1">
-              <span class="font-medium">Cargas:</span> {{ cargasAcademicas.length }} disponibles
-            </p>
-          </div>
+        <!-- Escuela -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Escuela</label>
+          <select
+            [(ngModel)]="idEscuelaSeleccionada"
+            [disabled]="loadingEscuelas"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="0" disabled>Seleccione una escuela</option>
+            <option *ngFor="let escuela of escuelas" [value]="escuela.idEscuela">
+              {{ escuela.nombre }}
+            </option>
+          </select>
         </div>
       </div>
     </div>
@@ -82,10 +85,10 @@
 
     <!-- Botones de Exportación -->
     <div class="bg-white shadow rounded-lg p-6">
-      <h2 class="text-lg font-medium text-gray-900 mb-4">Generar Reportes de Cursos Agrupados</h2>
+      <h2 class="text-lg font-medium text-gray-900 mb-4">Generar Reportes</h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Reporte PDF - Cursos Agrupados -->
+        <!-- Reporte PDF -->
         <div class="border border-gray-200 rounded-lg p-6 bg-blue-50">
           <div class="flex items-center mb-4">
             <svg class="h-8 w-8 text-blue-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,12 +96,12 @@
             </svg>
             <div>
               <h3 class="text-lg font-medium text-blue-800">Reporte PDF</h3>
-              <p class="text-sm text-blue-600">Cursos agrupados por asignatura</p>
+              <p class="text-sm text-blue-600">Cursos agrupados por escuela</p>
             </div>
           </div>
           <button
-            (click)="exportarPdfCursosAgrupados()"
-            [disabled]="loadingReporte || !idCicloAcademicoSeleccionado || !idCargaSeleccionada"
+            (click)="exportarPdfCursosEscuela()"
+            [disabled]="loadingReporte || !idCicloAcademicoSeleccionado || !idCargaSeleccionada || !idEscuelaSeleccionada"
             class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed transition-colors duration-200"
           >
             @if (loadingReporte) {
@@ -111,12 +114,12 @@
               <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Descargar PDF de Cursos Agrupados
+              Descargar PDF
             }
           </button>
         </div>
 
-        <!-- Reporte Excel - Cursos Agrupados (NUEVO) -->
+        <!-- Reporte Excel -->
         <div class="border border-gray-200 rounded-lg p-6 bg-green-50">
           <div class="flex items-center mb-4">
             <svg class="h-8 w-8 text-green-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,12 +127,12 @@
             </svg>
             <div>
               <h3 class="text-lg font-medium text-green-800">Reporte Excel</h3>
-              <p class="text-sm text-green-600">Cursos agrupados por asignatura</p>
+              <p class="text-sm text-green-600">Cursos agrupados por escuela</p>
             </div>
           </div>
           <button
-            (click)="exportarExcelCursosAgrupados()"
-            [disabled]="loadingReporte || !idCicloAcademicoSeleccionado || !idCargaSeleccionada"
+            (click)="exportarExcelCursosEscuela()"
+            [disabled]="loadingReporte || !idCicloAcademicoSeleccionado || !idCargaSeleccionada || !idEscuelaSeleccionada"
             class="w-full inline-flex justify-center items-center px-4 py-2 bg-green-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-not-allowed transition-colors duration-200"
           >
             @if (loadingReporte) {
@@ -142,49 +145,11 @@
               <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              Descargar Excel de Cursos Agrupados
+              Descargar Excel
             }
           </button>
         </div>
       </div>
-
-      <!-- Separador para reportes antiguos (opcional mantener) -->
-      @if (false) { <!-- Cambia a true si quieres mantener el reporte antiguo -->
-      <div class="mt-8 pt-6 border-t border-gray-200">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Otros Reportes</h3>
-        <div class="grid grid-cols-1 md:grid-cols-1 gap-6">
-          <div class="border border-gray-200 rounded-lg p-6 bg-yellow-50">
-            <div class="flex items-center mb-4">
-              <svg class="h-8 w-8 text-yellow-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <div>
-                <h3 class="text-lg font-medium text-yellow-800">Reporte Excel</h3>
-                <p class="text-sm text-yellow-600">Carga electiva agrupada por docente (Legado)</p>
-              </div>
-            </div>
-            <button
-              (click)="exportarExcelCargaElectiva()"
-              [disabled]="loadingReporte || !idCargaSeleccionada"
-              class="w-full inline-flex justify-center items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:bg-yellow-400 disabled:cursor-not-allowed transition-colors duration-200"
-            >
-              @if (loadingReporte) {
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generando Excel...
-              } @else {
-                <svg class="-ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Descargar Excel (Carga Electiva)
-              }
-            </button>
-          </div>
-        </div>
-      </div>
-      }
     </div>
   </div>
 </div>
